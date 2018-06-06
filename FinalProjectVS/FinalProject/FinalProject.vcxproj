@@ -95,10 +95,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\mbedtls\mbedTLS.lib;C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\cryptopp\cryptopp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include\mbedtls\mbedTLS.lib;C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include\cryptopp\cryptopp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

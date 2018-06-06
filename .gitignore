@@ -71,7 +71,6 @@ StyleCopReport.xml
 *.pch
 *.pdb
 *.ipdb
-*.ipch
 *.pgc
 *.pgd
 *.rsp
@@ -333,5 +332,4 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 /venv
-/~Client.exe
 /FinalProjectVS/include/cryptopp/cryptopp.lib

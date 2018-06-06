@@ -331,7 +331,7 @@ ASALocalRun/
 *.nvuser
 
 # MFractors (Xamarin productivity tool) working folder 
-/FinalProjectVS\include\cryptopp\cryptopp.lib
 .mfractor/
 /venv
 /~Client.exe
+/FinalProjectVS/include/cryptopp/cryptopp.lib

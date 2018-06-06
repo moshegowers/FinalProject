@@ -5,7 +5,6 @@ import pyDH
 from AES import AESCipher
 import threading
 import subprocess
-from Cryptodome.Util import number
 
 IP_ADDRESS = '127.0.0.1'
 PORT = 4921
@@ -16,22 +15,18 @@ REQUEST_STRING = "What to do?"
 class Client:
     def __init__(self):
         try:
-            self.private_key = number.getPrime(512, None)
-            self.p = number.getPrime(512, None)
-            self.g = 2
-            self.public_key = pow(self.g, self.private_key, self.p)
+            self.dh = pyDH.DiffieHellman()
+            self.private_key = self.dh.get_private_key()
+            self.public_key = self.dh.gen_public_key()
             self.shared_key = None
             self.init_shared_key()
 
         except ValueError as e:
-            print("Cannot initialized with error {}".format(str(e)))
+            print("Cannot initialized")
             return
 
     def init_shared_key(self):
-        pubKey = self.send_request(str("1 " + str(self.p) + " " + str(self.g)).encode())
-        self.shared_key = pow(int(pubKey.split()[1]), self.private_key, self.p)
-        self.shared_key = 1007236729809112577516425642247385028816751948970438338740753926430690681252935049807949806018698479441332651455475340691716082521140030245386345076551441
-        x = self.send_request(str("2 " + str(self.public_key)).encode())
+        self.shared_key = self.dh.gen_shared_key(int(self.send_request(str("1 " + str(self.public_key)).encode())))
         threading.Timer(5.0 * 60, self.init_shared_key).start()
 
     def send_request(self, request):
@@ -50,8 +45,8 @@ class Client:
     def run(self):
         while True:
             cipher = AESCipher(str(self.shared_key))
-            data = self.send_request(cipher.encrypt(str("2 " + REQUEST_STRING)))
-            if data != b'' and data != '':
+            data = self.send_request(cipher.encrypt(str("2 " + REQUEST_STRING).encode()))
+            if data != b'':
                 res = cipher.decrypt(data).decode()
                 if res is not None and res != '':
                     print('The server sent: ' + res)
@@ -65,7 +60,7 @@ class Client:
                         print('The server sent: ' + cipher.decrypt(data).decode())
 
             sleep_rand = random.uniform(1.0, 2.0)
-            print("Waiting for {} seconds...".format(sleep_rand))
+            print("Waiting for {}".format(sleep_rand))
             time.sleep(sleep_rand * 30)
 
 

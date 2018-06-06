@@ -1,9 +1,8 @@
 import socket
+import pyDH
 from AES import AESCipher
 import threading
 import msvcrt
-from Cryptodome.Util import number
-
 
 IP_ADDRESS = '127.0.0.1'
 PORT = 4921
@@ -15,16 +14,11 @@ CLOSE_CON_MSG = 'Connection with client closed.'
 class Server:
     def __init__(self):
         try:
-            # self.dh = chilkat.CkDh()
-            # self.dh.UnlockComponent("Anything for 30-day trial")
-            # self.dh.UseKnownPrime(2)
-            self.private_key = number.getPrime(512, None)
-            self.p = None
-            self.g = None
-            self.public_key = None
+            self.dh = pyDH.DiffieHellman()
+            self.private_key = self.dh.get_private_key()
+            self.public_key = self.dh.gen_public_key()
             self.shared_key = None
             self.todo = ''
-            self.result = ''
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -89,3 +83,12 @@ class Server:
         # t1.join()
         while True:
             self.get_input()
+
+
+def main():
+    server = Server()
+    server.run()
+
+
+if __name__ == "__main__":
+    main()

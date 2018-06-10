@@ -1,4 +1,5 @@
 #pragma once
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #ifndef ARPSPOOF_H
 #define ARPSPOOF_H
@@ -6,14 +7,14 @@
 #include <string>
 #include <atomic>
 #include <vector>
+#include <iostream>
 #include <unordered_set>
 #include <winsock2.h>
 #include <ws2def.h>
 #include <ws2ipdef.h>
 #include <iphlpapi.h>
 #include <pcap.h>
-#include <Windows.h>
-#include <iostream>
+
 
 
 struct iface_info {

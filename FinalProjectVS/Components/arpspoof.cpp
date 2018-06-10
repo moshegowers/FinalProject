@@ -304,33 +304,33 @@ int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
 		ip_to_str(targetip).c_str(), mac_to_str(targetmac).c_str());
 
 	time_t next_arp_time = 0;
-	while (!stop) {
-		time_t now = time(nullptr);
-		if (now >= next_arp_time) {
-			next_arp_time = now + 2;
-			if (pcap_sendpacket(pcap, arp_spoof_victim, sizeof(arp_spoof_victim)) != 0) {
-				fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
-				return 1;
-			}
-			if (pcap_sendpacket(pcap, arp_spoof_target, sizeof(arp_spoof_target)) != 0) {
-				fprintf(stderr, "Error sending packet2: %s\n", pcap_geterr(pcap));
-				return 1;
-			}
-		}
+	//while (!stop) {
+	//	time_t now = time(nullptr);
+	//	if (now >= next_arp_time) {
+	//		next_arp_time = now + 2;
+	//		if (pcap_sendpacket(pcap, arp_spoof_victim, sizeof(arp_spoof_victim)) != 0) {
+	//			fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
+	//			return 1;
+	//		}
+	//		if (pcap_sendpacket(pcap, arp_spoof_target, sizeof(arp_spoof_target)) != 0) {
+	//			fprintf(stderr, "Error sending packet2: %s\n", pcap_geterr(pcap));
+	//			return 1;
+	//		}
+	//	}
 
-		pcap_pkthdr *header;
-		const uint8_t *pkt_data;
-		int res = pcap_next_ex(pcap, &header, &pkt_data);
-		if (res < 0) {
-			printf("error\n");
-			break;
-		}
-		else if (res == 0) {
-			// timeout
-			continue;
-		}
-		handle_packet(pcap, header, pkt_data, victimmac, victimip, targetmac, iface.mac);
-	}
+	//	pcap_pkthdr *header;
+	//	const uint8_t *pkt_data;
+	//	int res = pcap_next_ex(pcap, &header, &pkt_data);
+	//	if (res < 0) {
+	//		printf("error\n");
+	//		break;
+	//	}
+	//	else if (res == 0) {
+	//		// timeout
+	//		continue;
+	//	}
+	//	handle_packet(pcap, header, pkt_data, victimmac, victimip, targetmac, iface.mac);
+	//}
 	retflag = false;
 	return {};
 }

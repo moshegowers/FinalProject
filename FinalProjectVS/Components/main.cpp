@@ -1,6 +1,5 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define HAVE_REMOTE
-
+//#define HAVE_REMOTE
+#pragma warning
 #include "arpspoof.h"
 #include "SniffTraffic.h"
 

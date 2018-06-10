@@ -1,7 +1,6 @@
-#include "SniffTraffic.h"
-#include <ws2def.h>
-#include <ws2ipdef.h>
 #include <Ws2tcpip.h>
+#include "SniffTraffic.h"
+
 
 //Capture code
 void SniffTraffic::Capture()
@@ -81,7 +80,7 @@ bool SniffTraffic::TestTargetNetwork(pcap_if_t * adapter)
 	return (temp4 == network);
 }
 
-int SniffTraffic::SniffByFilter(const char *packet_filter = "")
+int SniffTraffic::SniffByFilter(const char *packet_filter)
 {
 	pcap_findalldevs_ex((char *)PCAP_SRC_IF_STRING, NULL, &allAdapters, errorBuffer);
 

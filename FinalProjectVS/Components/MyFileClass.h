@@ -1,5 +1,7 @@
 #pragma once
-#pragma once
+#ifndef FILECLASS_H
+#define FILECLASS_H
+
 #include <filesystem>
 #include <map>
 #include <experimental/filesystem>
@@ -22,3 +24,5 @@ public:
 	string getFileType(int index) { return filetype[index]; }
 
 };
+
+#endif

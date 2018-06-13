@@ -95,10 +95,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include\mbedtls\mbedTLS.lib;C:\Users\admin\Desktop\FinalProject\FinalProjectVS\include\cryptopp\cryptopp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\mbedtls\mbedTLS.lib;C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\cryptopp\cryptopp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -107,10 +107,11 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\cryptopp\cryptopp.lib;C:\Users\Moshe\Desktop\CyberPlan\FinalProject\FinalProject\FinalProjectVS\include\mbedtls\mbedTLS.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

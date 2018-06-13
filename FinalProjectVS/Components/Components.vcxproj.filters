@@ -21,9 +21,24 @@
     <ClInclude Include="MyFileClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="arpspoof.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SniffTraffic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arpspoof.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SniffTraffic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

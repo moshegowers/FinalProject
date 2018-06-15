@@ -14,6 +14,8 @@
 #include <sstream>
 #include <iterator>
 #include <thread>
+#include <fstream>
+#include <numeric>
 #include "MyFileClass.h"
 using namespace std;
 
@@ -34,6 +36,7 @@ extern "C" {
 	extern __declspec(dllexport) string GetAllFiles(string dir);
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
+	extern __declspec(dllexport) string GetArpTable();
 
 #endif
 }
@@ -50,4 +53,5 @@ string HideFileOrFolder(string file);
 string DeleteGivenFile(string file);
 string UnHideFileOrFolder(string pathtofileorfolder);
 string MoveGivenFileToDestination(string pathtofile, string Destination);
+string SplitArpLine(string line);
 #endif

@@ -108,6 +108,45 @@ string ChangeFile(string cmd)
 		return MoveGivenFileToDestination(string((*++it)), string((*it)));
 	}
 }
+
+/*
+	
+	returns arp table. each ip and mac
+*/
+string GetArpTable()
+{
+	string cmd = "arp -a";
+	string table = exec(cmd);
+	vector<string> tokens = split(table);
+	vector<string> arpinfo;
+	for (vector<string>::iterator it = tokens.begin(); it != tokens.end(); ++it)
+	{
+		if (!(it->compare("Interface:")))
+		{
+
+			arpinfo.push_back(string((it++)->c_str()));
+			arpinfo.push_back(string((it)->c_str()));
+		}
+		if (!(it->compare("dynamic")))
+		{
+			arpinfo.push_back(string((----it)->c_str()));
+			arpinfo.push_back(string((++it)->c_str()));
+			++it;
+		}
+	}
+	string s;
+	int i = 1;
+	for (vector<string>::iterator it = arpinfo.begin(); it != arpinfo.end(); ++it, i++)
+	{
+		s.append(it->c_str()).append("\t");
+		if (i % 2 == 0) {
+			s.append("\n");
+		}
+	}
+	return s;
+}
+
+
 /*
 	change attribute to hidden in file or folder
 */

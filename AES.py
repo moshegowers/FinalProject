@@ -5,7 +5,10 @@ from Crypto.Cipher import AES
 BLOCK_SIZE = 16  # Bytes
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
                 chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
-unpad = lambda s: s[0:-ord(s[len(s) - 1:])]
+
+
+def unpad(s):
+    return s[:-ord(s[len(s) - 1:])]
 
 
 class AESCipher:
@@ -25,4 +28,5 @@ class AESCipher:
         enc = base64.b64decode(enc)
         iv = b'1111111111111111'
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return unpad(cipher.decrypt(enc))
+        x = unpad(cipher.decrypt(enc))
+        return x

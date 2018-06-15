@@ -28,15 +28,17 @@ Agent::Agent()
 
 	CreateSocket();
 	CreateNewSymetricKey();
+	aes = AES_crypto(sharedKey);
 
-	unsigned char key[32];
-	char * str = (char *)sharedKey.substr(0, 32).c_str();
+	byte key[32];
+	/*char * str = (char *)sharedKey.substr(0, 32).c_str();
 	for (size_t i = 0; i < 32; i++)
 	{
 		key[i] = static_cast<unsigned char>(str[i]);
-	}
-	mbedtls_aes_setkey_enc(&aes, key, 256);
-	//aes = AES_crypto(sharedKey);
+	}*/
+	/*memcpy(key, sharedKey.substr(0, 32).data(), 32);
+	mbedtls_aes_setkey_enc(&aes, key, 256);*/
+	
 
 	thread t1(&Agent::CreateNewSymetricKeyWithThread, this);
 	t1.detach();
@@ -109,9 +111,6 @@ void Agent::CreateNewSymetricKey()
 		++it;
 		sharedKey = dh.set_sheard_key(it->c_str());
 		sharedKey.erase(remove(sharedKey.begin(), sharedKey.end(), '.'), sharedKey.end());
-		//const char *p = it->c_str();
-		//int g = stoi(*it);
-		//dh.set_pg(p, g);
 	}
 
 	//Sleep(10000);
@@ -121,14 +120,6 @@ void Agent::CreateNewSymetricKey()
 	message = string("2 ").append(pubKey);
 	SendMessageToServer(message.c_str(), message.length());
 	ReciveMessage();
-	/*res = get_tokens(string(recvbuf));
-	it = res.begin();
-	if (!strcmp(it->c_str(), "2"))
-	{
-		++it;
-		sharedKey = string(dh.get_sheard_key(it->c_str()));
-		cout << sharedKey << endl;
-	}*/
 }
 /*
 	renew the key every 24 hours
@@ -153,14 +144,7 @@ void Agent::GetRequestFromServer()
 	{
 		CreateSocket();
 		string message = string("3 ").append(REQUEST_STRING);
-		unsigned char *input = (unsigned char *)message.c_str();
-		unsigned char *output;
-		unsigned char iv[16];
-		memset(iv, 0x01, 16);
-		size_t size = strlen((const char*)input) + (16 - (strlen((const char*)input) % 16));
-		output = new unsigned char[size];
-		mbedtls_aes_crypt_cbc(&aes, MBEDTLS_AES_ENCRYPT, size, iv, input, output);
-		string m = base64_encode((char *)output);
+	    string m = aes.Encrypt(message);
 
 		//send and receive messages
 		SendMessageToServer(m.c_str(), m.size());

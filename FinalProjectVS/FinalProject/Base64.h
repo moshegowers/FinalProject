@@ -7,7 +7,7 @@
 using namespace std;
 
 string base64_encode(const string data);
-string base64_decode(const string &in, string &out);
+string base64_decode(const string input);
 
 #endif
 

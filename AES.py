@@ -15,13 +15,12 @@ class AESCipher:
 
     def __init__(self, key):
         self.key = key[:32]
-        print(self.key)
 
     def encrypt(self, raw):
         raw = pad(raw)
         iv = b'1111111111111111'  # Random.new().read(AES.block_size)
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return base64.b64encode(cipher.encrypt(raw))
+        return base64.b64encode(cipher.encrypt(raw)) + b'\0'
         # return iv + cipher.encrypt(raw);
 
     def decrypt(self, enc):

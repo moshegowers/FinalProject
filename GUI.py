@@ -35,8 +35,12 @@ class Adder(ttk.Frame):
     def check_result(self):
         while True:
             if self.server.result != '':
-                self.answer_frame.insert(tkinter.INSERT, self.server.result)
+                self.answer_frame.configure(state='normal')
+                self.answer_frame.insert(tkinter.INSERT, self.server.result + '\n')
+                self.answer_frame.configure(state='disabled')
+                self.server.todo = ''
                 self.server.result = ''
+                self.exex_entry.delete(0, 'end')
 
     def on_quit(self):
         """Exits program."""
@@ -44,7 +48,9 @@ class Adder(ttk.Frame):
 
     def exec(self):
         self.server.set_todo('cmd ' + self.exex_entry.get())
+        self.answer_frame.configure(state='normal')
         self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...")
+        self.answer_frame.configure(state='disabled')
 
     def exec_func(self):
         self.server.set_todo('func component ' + self.var.get().replace(" ", "") + " " + self.e.get())
@@ -78,6 +84,7 @@ class Adder(ttk.Frame):
         self.answer_frame = tkst.ScrolledText(
             master=self,
             wrap=tkinter.WORD,
+            state='disabled',
             width=70,
             height=20
         )

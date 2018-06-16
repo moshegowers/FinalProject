@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <iterator>
 #include <thread>
-#include <mbedtls\aes.h>
 using namespace std;
 
 #define WIN32_LEAN_AND_MEAN

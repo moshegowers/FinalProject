@@ -43,17 +43,16 @@ string AES_crypto::Encrypt(string plaintext)
 
 string AES_crypto::Decrypt(string ciphertext)
 {
+	ciphertext = base64_decode(ciphertext);
 	string decryptedtext;
 
-	CryptoPP::CBC_Mode< CryptoPP::AES >::Decryption decryptor;
+	CBC_Mode<AES>::Decryption decryptor;
 	decryptor.SetKeyWithIV(_key, 32, _iv);
 
 
-	CryptoPP::StringSource(base64_decode(ciphertext), true,
-		new CryptoPP::StreamTransformationFilter(decryptor,
-			new CryptoPP::StringSink(decryptedtext)
-		)
-	);
+	StringSource(ciphertext, true,
+		new StreamTransformationFilter(decryptor, new StringSink(decryptedtext),
+			StreamTransformationFilter::PKCS_PADDING));
 
 	return decryptedtext;
 }

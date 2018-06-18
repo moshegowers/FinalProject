@@ -5,7 +5,7 @@
 #include "Socket.h"
 #include "DiffieHelman.h"
 #include "Base64.h"
-//#include "AES_crypto.h"
+#include "AES_crypto.h"
 //#include "aes.h"
 #include <Windows.h>
 #include <vector>
@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <iterator>
 #include <thread>
-#include <mbedtls\aes.h>
 using namespace std;
 
 #define WIN32_LEAN_AND_MEAN
@@ -33,16 +32,17 @@ private:
 	addrinfo *ptr;
 	int recvbuflen;
 	Socket mySocket;
-	string sharedKey;
-	//AES_crypto aes;
-	mbedtls_aes_context aes;
+	
+	AES_crypto aes;
+	
 
 	void CreateNewSymetricKey();
 	void CreateNewSymetricKeyWithThread();
 	void GetRequestFromServer();
 public:
 	Agent();
-
+	string sharedKey;
+	//mbedtls_aes_context aes;
 	void CreateSocket();
 	void SendMessageToServer(const char *message, size_t length);
 	void ReciveMessage();

@@ -1,27 +1,16 @@
 //#define HAVE_REMOTE
 #pragma warning
-#include "Components.h"
+#include "arpspoof.h"
 #include "SniffTraffic.h"
+//#include <tins/tins.h>
 
-std::string victim;
-
-BOOL WINAPI CtrlCHandler(DWORD dwCtrlType) {
-	if (dwCtrlType == CTRL_C_EVENT) {
-		StopSpoofingVictim(victim);
-		return TRUE;
-	}
-	return FALSE;
-}
 
 int main(int argc, char **argv)
 {
-	
-	std::cout << "Please enter a valid ip of victim\n>";
-	std::cin >> victim;
-
-	SetConsoleCtrlHandler(CtrlCHandler, TRUE);
-	SpoofVictim(victim);
-	//system("pause");
+	Arpspoof a;
+	bool retflag;
+	int retval = a.SendArpReplayForSpoofing(retflag);
+	if (retflag) return retval;
 
 	SniffTraffic st;
 	st.SniffByFilter();

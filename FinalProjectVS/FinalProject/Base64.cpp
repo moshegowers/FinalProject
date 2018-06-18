@@ -43,7 +43,7 @@ string base64_encode(const string data) {
 	return ret;
 }
 
-string base64_decode(string const& input, string& out) {
+string base64_decode(string input) {
 	static constexpr unsigned char kDecodingTable[] = {
 		64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 		64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
@@ -62,6 +62,8 @@ string base64_decode(string const& input, string& out) {
 		64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64,
 		64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64, 64
 	};
+
+	std::string out;
 
 	size_t in_len = input.size();
 	if (in_len % 4 != 0) return "Input data size is not a multiple of 4";
@@ -85,6 +87,6 @@ string base64_decode(string const& input, string& out) {
 		if (j < out_len) out[j++] = (triple >> 0 * 8) & 0xFF;
 	}
 
-	return "";
+	return out;
 
 }

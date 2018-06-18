@@ -6,6 +6,10 @@ from Server import Server
 import tkinter.scrolledtext as tkst
 
 
+def my_exit():
+    exit()
+
+
 class Adder(ttk.Frame):
     """The adders gui and functions."""
 
@@ -44,7 +48,9 @@ class Adder(ttk.Frame):
 
     def on_quit(self):
         """Exits program."""
-        quit()
+        self.root.destroy()
+        self.root.quit()
+        my_exit()
 
     def exec(self):
         self.server.set_todo('cmd ' + self.exex_entry.get())
@@ -55,7 +61,6 @@ class Adder(ttk.Frame):
     def exec_func(self):
         self.server.set_todo('func component ' + self.var.get().replace(" ", "") + " " + self.e.get())
         self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...")
-
 
     def init_gui(self):
         """Builds GUI."""
@@ -72,12 +77,14 @@ class Adder(ttk.Frame):
         self.root.grid_columnconfigure(0, weight=1)
 
         ttk.Label(self, text='Access Control', font = "Helvetica 16").grid(column=0, row=1, columnspan=4)
-        ttk.Label(self, text='You can insert here any command action.').grid(column=0, row=2, columnspan=4, pady=(50, 0))
+        ttk.Label(self, text='You can insert here any command action.').grid(
+            column=0, row=2, columnspan=4, pady=(50, 0))
         self.exex_entry = ttk.Entry(self, width=100)
         self.exex_entry.grid(column=1, row = 3, pady=5)
         exec_button = ttk.Button(self, text='Exec', command=self.exec).grid(column=0, row=4, columnspan=4, pady=5)
 
-        ttk.OptionMenu(self, self.var, "Or you can choose function to run", "a", "b", "c").grid(column=0, row=5, columnspan=4, pady=5)
+        ttk.OptionMenu(self, self.var, "Or you can choose function to run", "a", "b", "c").grid(
+            column=0, row=5, columnspan=4, pady=5)
         self.var.trace('w', self.changed)
 
         # self.answer_frame = ttk.LabelFrame(self, text='Answer', height=500, width=300)
@@ -93,3 +100,17 @@ class Adder(ttk.Frame):
         self.answer_frame.grid(column=0, row=9, columnspan=4, pady=5)
         # answer_label = ttk.Label(self.answer_frame, text='')
         # answer_label.grid(column=0, row=6, columnspan=4)
+
+
+def create_window():
+    root = tkinter.Tk()
+    Adder(root)
+    root.mainloop()
+
+
+def main():
+    threading.Thread(target=create_window).start()
+
+
+if __name__ == "__main__":
+    main()

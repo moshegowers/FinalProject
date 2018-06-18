@@ -4,10 +4,9 @@ from tkinter import ttk
 from tkinter import StringVar
 from Server import Server
 import tkinter.scrolledtext as tkst
+import sys
 
-
-def my_exit():
-    exit()
+cond = True
 
 
 class Adder(ttk.Frame):
@@ -37,7 +36,8 @@ class Adder(ttk.Frame):
         ttk.Button(self, text='Exec', command=self.exec_func).grid(column=0, row=8, columnspan=4, pady=5)
 
     def check_result(self):
-        while True:
+        global cond
+        while cond:
             if self.server.result != '':
                 self.answer_frame.configure(state='normal')
                 self.answer_frame.insert(tkinter.INSERT, self.server.result + '\n')
@@ -47,10 +47,14 @@ class Adder(ttk.Frame):
                 self.exex_entry.delete(0, 'end')
 
     def on_quit(self):
+        global cond
         """Exits program."""
-        self.root.destroy()
-        self.root.quit()
-        my_exit()
+        self.destroy()
+        self.quit()
+        cond = False
+        self.server.cond = False
+        self.server.server_socket.close()
+        sys.exit()
 
     def exec(self):
         self.server.set_todo('cmd ' + self.exex_entry.get())
@@ -106,6 +110,7 @@ def create_window():
     root = tkinter.Tk()
     Adder(root)
     root.mainloop()
+    print('hi')
 
 
 def main():

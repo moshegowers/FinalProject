@@ -85,6 +85,8 @@ class Adder(ttk.Frame):
             master=self,
             wrap=tkinter.WORD,
             state='disabled',
+            background='black',
+            foreground='white',
             width=70,
             height=20
         )

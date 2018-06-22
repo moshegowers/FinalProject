@@ -22,6 +22,7 @@ class Server:
             self.todo = ''
             self.result = ''
             self.cond = True
+            self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -37,8 +38,6 @@ class Server:
         self.todo = to_do
 
     def listen(self, server_socket, client_socket):
-        total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
-
         while self.cond:
             try:
                 data_bytes = client_socket.recv(RECV_LENGTH)
@@ -74,16 +73,19 @@ class Server:
                         time.sleep(1)
                         cipher_text = cipher.encrypt('4 Thanks')
                         client_socket.send(cipher_text)
-                    elif data[:1] == b'5':
-                        if 1:
-                            total_data += data[1:]
-                        else:
+                    elif data[:1] == b'5' or data[:1] == '5':
+                        if data == '5finish':
                             new_file = open("1.png", "wb")
                             # write to file
-                            new_file.write(total_data)
-                # client_socket.close()
+                            new_file.write(self.total_data)
+                            new_file.close()
+                            self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
+                        else:
+                            self.total_data += data[1:]
             except ValueError as e:
                 pass
+
+        # client_socket.close()
 
     def run(self):
         self.server_socket = socket.socket()
@@ -92,8 +94,11 @@ class Server:
         while True:
             try:
                 (client_socket, address) = self.server_socket.accept()
-                self.listen(self.server_socket, client_socket)
+                t = threading.Thread(target=self.listen, args=(self.server_socket, client_socket))
+                t.start()
             except:
+                pass
+            if not t.is_alive():
                 print(CLOSE_CON_MSG)
                 client_socket.close()
 

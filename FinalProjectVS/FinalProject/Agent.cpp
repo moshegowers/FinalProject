@@ -102,8 +102,8 @@ void Agent::CreateNewSymetricKey()
 
 	string p = dh.get_p();
 	p.erase(remove(p.begin(), p.end(), '.'), p.end());
-	string message = string("1 ").append(p).append(" ").append(to_string(dh.get_g()));	
-	SendMessageToServer(message.c_str(), message.length());
+	string message = string(p).append(" ").append(to_string(dh.get_g()));	
+	SendMessageToServer(message.c_str(), message.length(), (char*)"1 ");
 	ReciveMessage();
 	vector<string> res = split(string(recvbuf));
 	vector<string>::iterator it = res.begin();
@@ -115,11 +115,11 @@ void Agent::CreateNewSymetricKey()
 	}
 
 	//Sleep(10000);
-	CreateSocket();
+	recvbuf[0] = '\0';
 	string pubKey = dh.get_public_key();
 	pubKey.erase(remove(pubKey.begin(), pubKey.end(), '.'), pubKey.end());
-	message = string("2 ").append(pubKey);
-	SendMessageToServer(message.c_str(), message.length());
+	message = string(pubKey);
+	SendMessageToServer(message.c_str(), message.length(), (char*)"2 ");
 	ReciveMessage();
 }
 /*
@@ -143,18 +143,18 @@ void Agent::GetRequestFromServer()
 {
 	while (true)
 	{
-		CreateSocket();
-		string message = string("3 ").append(REQUEST_STRING);
-	    string m = aes.Encrypt(message);
+		recvbuf[0] = '\0';
+		string message = string(REQUEST_STRING);
 
 		//send and receive messages
-		SendMessageToServer(m.c_str(), m.size());
+		SendMessageToServer(message.c_str(), message.size(), (char*)"3", true);
 		ReciveMessage();
 
 		string req = string(recvbuf);
-		if (!req.empty())
+		string x = aes.Decrypt(req);
+		if (!x.empty() && x.size() != 2)
 		{
-			vector<string> res = split(aes.Decrypt(req));
+			vector<string> res = split(x);
 			vector<string>::iterator it = res.begin();
 
 			// Take action from command
@@ -184,12 +184,11 @@ void Agent::GetRequestFromServer()
 
 				if (!responce.empty())
 				{
-					CreateSocket();
-					string message = string("4 ").append(responce);
-					string m = aes.Encrypt(message);
+					recvbuf[0] = '\0';
+					string message = string(responce);
 
 					//send and receive messages
-					SendMessageToServer(m.c_str(), m.size());
+					SendMessageToServer(message.c_str(), message.size(), (char*)"4", true);
 					ReciveMessage();
 				}
 			}
@@ -202,15 +201,50 @@ void Agent::GetRequestFromServer()
 /*
 	Take message and send it to server
 */
-void Agent::SendMessageToServer(const char * message, size_t length)
+void Agent::SendMessageToServer(const char * message, size_t length, char *code, bool encrypt)
 {
-	// Send an initial buffer
-	iResult = mySocket.SendToServer(message, length);
-	if (iResult == SOCKET_ERROR) {
-		printf("send failed with error: %d\n", WSAGetLastError());
-		mySocket.Cleanup(true);
-		return;
+	int size = strlen(message);
+	int chunkcount = size / 1023;
+	int lastchunksize = size - (chunkcount * 1023);
+	int fileoffset = 0;
+	int iResult;
+
+	//Sending Actual Chunks
+	while (chunkcount > 0)
+	{
+		string m;
+		if (encrypt)
+		{
+			m = aes.Encrypt(string(message + (fileoffset * 1023), 1023));
+		}
+		else
+		{
+			m = string(message + (fileoffset * 1023), 1023);
+		}
+		m = string(code).append(m);
+		iResult = mySocket.SendToServer(m.c_str(), m.length());
+		fileoffset++;
+		chunkcount--;
+
+		if (iResult == SOCKET_ERROR) {
+			printf("send failed with error: %d\n", WSAGetLastError());
+			mySocket.Cleanup(true);
+			return;
+		}
 	}
+
+	//Sending last Chunk
+	string m;
+	if (encrypt)
+	{
+		m = aes.Encrypt(string(message + (fileoffset * 1023), min(lastchunksize, 1023)));
+	}
+	else
+	{
+		m = string(message + (fileoffset * 1023), min(lastchunksize, 1023));
+	}
+	m = string(code).append(m);
+	iResult = mySocket.SendToServer(m.c_str(), m.length());
 
 	printf("Bytes Sent: %ld\n", iResult);
 }
@@ -221,7 +255,7 @@ void Agent::SendMessageToServer(const char * message, size_t length)
 void Agent::ReciveMessage()
 {
 	// Receive until the peer closes the connection
-	do {
+	//do {
 
 		iResult = mySocket.ReciveFromServer(recvbuf, recvbuflen);
 		if (iResult > 0)
@@ -231,7 +265,7 @@ void Agent::ReciveMessage()
 		else
 			printf("recv failed with error: %d\n", WSAGetLastError());
 
-	} while (iResult > 0);
+	//} while (iResult > 0);
 }
 /*
   // shutdown the connection since no more data will be sent

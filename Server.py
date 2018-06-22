@@ -3,11 +3,12 @@ import pyDH
 from AES import AESCipher
 import threading
 import msvcrt
+import time
 
 IP_ADDRESS = '127.0.0.1'
 PORT = 4921
-LISTEN_COUNT = 1
-RECV_LENGTH = 1024
+LISTEN_COUNT = 5
+RECV_LENGTH = 1025
 CLOSE_CON_MSG = 'Connection with client closed.'
 
 
@@ -35,60 +36,64 @@ class Server:
     def set_todo(self, to_do):
         self.todo = to_do
 
-    def listen(self, server_socket):
+    def listen(self, server_socket, client_socket):
+        total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
+
         while self.cond:
             try:
-                (client_socket, address) = server_socket.accept()
+                data_bytes = client_socket.recv(RECV_LENGTH)
+                data = None
                 try:
-                    data_bytes = client_socket.recv(RECV_LENGTH)
-                    data = None
-                    try:
-                        data = bytes(data_bytes).decode()
-                    except:
-                        data = data_bytes
-                    if data is not None and data == '':
-                        print(CLOSE_CON_MSG)
-                    else:
-                        if data is not None and data.split()[0] == "1":
-                            self.p = int(data.split()[1])
-                            self.g = int(data.split()[2])
-                            self.public_key = pow(self.g, self.private_key, self.p)
-                            client_socket.send(str("2 " + str(self.public_key)).encode())
-                        elif data is not None and data.split()[0] == "2":
-                            self.shared_key = pow(int(data.split()[1]), self.private_key, self.p)
-                            client_socket.send(str("2 " + str(self.public_key)).encode())
-                            print("key changed!")
-                        else:
-                            cipher = AESCipher(str(self.shared_key))
-                            data_decrypt = cipher.decrypt(data).decode()
-                            print(data_decrypt[2:])
-                            if data_decrypt.split()[0] == "3":
-                                if self.todo:
-                                    cipher_text = cipher.encrypt(str('3 ' + self.todo))
-                                    client_socket.send(cipher_text)
-                            elif data_decrypt.split()[0] == "4":
-                                self.result = data_decrypt[2:]
-                                cipher_text = cipher.encrypt('4 Thanks')
-                                client_socket.send(cipher_text)
-                    # client_socket.close()
-                except ValueError as e:
-                    print("The client not available")
-                finally:
+                    data = bytes(data_bytes).decode()
+                except:
+                    data = data_bytes
+                if data is not None and data == '':
                     client_socket.close()
-            except:
+                    print(CLOSE_CON_MSG)
+                else:
+                    if data is not None and data.split()[0] == "1":
+                        self.p = int(data.split()[1])
+                        self.g = int(data.split()[2])
+                        self.public_key = pow(self.g, self.private_key, self.p)
+                        client_socket.send(str("2 " + str(self.public_key)).encode())
+                    elif data is not None and data.split()[0] == "2":
+                        self.shared_key = pow(int(data.split()[1]), self.private_key, self.p)
+                        client_socket.send(str("2 " + str(self.public_key)).encode())
+                        print("key changed!")
+                    elif data[:1] == b'3':
+                        cipher = AESCipher(str(self.shared_key))
+                        data_decrypt = cipher.decrypt(data[1:]).decode()
+                        #if self.todo:
+                        print(self.todo)
+                        cipher_text = cipher.encrypt(str('3 ' + self.todo))
+                        client_socket.send(cipher_text)
+                    elif data[:1] == b'4':
+                        cipher = AESCipher(str(self.shared_key))
+                        data_decrypt = cipher.decrypt(data[1:]).decode()
+                        self.result = data_decrypt
+                        time.sleep(1)
+                        cipher_text = cipher.encrypt('4 Thanks')
+                        client_socket.send(cipher_text)
+                    elif data[:1] == b'5':
+                        if 1:
+                            total_data += data[1:]
+                        else:
+                            new_file = open("1.png", "wb")
+                            # write to file
+                            new_file.write(total_data)
+                # client_socket.close()
+            except ValueError as e:
                 pass
 
     def run(self):
         self.server_socket = socket.socket()
         self.server_socket.bind((IP_ADDRESS, PORT))
         self.server_socket.listen(LISTEN_COUNT)
-        threading.Thread(target=self.listen, args=(self.server_socket, )).start()
+        while True:
+            try:
+                (client_socket, address) = self.server_socket.accept()
+                self.listen(self.server_socket, client_socket)
+            except:
+                print(CLOSE_CON_MSG)
+                client_socket.close()
 
-
-def main():
-    server = Server()
-    server.run()
-
-
-if __name__ == "__main__":
-    main()

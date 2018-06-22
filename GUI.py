@@ -59,7 +59,7 @@ class Adder(ttk.Frame):
     def exec(self):
         self.server.set_todo('cmd ' + self.exex_entry.get())
         self.answer_frame.configure(state='normal')
-        self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...")
+        self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...\n")
         self.answer_frame.configure(state='disabled')
 
     def exec_func(self):

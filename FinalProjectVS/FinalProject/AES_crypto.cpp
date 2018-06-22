@@ -36,9 +36,9 @@ string AES_crypto::Encrypt(string plaintext)
 		new StreamTransformationFilter(encryptor, new StringSink(ciphertext),
 			StreamTransformationFilter::PKCS_PADDING));
 	
-	//return ciphertext;
+	return ciphertext;
 
-	return base64_encode(ciphertext);	
+	//return base64_encode(ciphertext);	
 }
 
 string AES_crypto::Decrypt(string ciphertext)

@@ -1,5 +1,4 @@
 import base64
-from aes_test import aes
 from Crypto.Cipher import AES
 
 BLOCK_SIZE = 16  # Bytes
@@ -24,7 +23,7 @@ class AESCipher:
         # return iv + cipher.encrypt(raw);
 
     def decrypt(self, enc):
-        enc = base64.b64decode(enc)
+        # enc = base64.b64decode(enc)
         iv = b'1111111111111111'
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         x = unpad(cipher.decrypt(enc))

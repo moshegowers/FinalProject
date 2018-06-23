@@ -23,6 +23,7 @@ class Server:
             self.result = ''
             self.cond = True
             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
+            self.connections = []
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -40,7 +41,12 @@ class Server:
     def listen(self, server_socket, client_socket):
         while self.cond:
             try:
-                data_bytes = client_socket.recv(RECV_LENGTH)
+                try:
+                    data_bytes = client_socket.recv(RECV_LENGTH)
+                except:
+                    client_socket.close()
+                    print(CLOSE_CON_MSG)
+                    break
                 data = None
                 try:
                     data = bytes(data_bytes).decode()
@@ -62,7 +68,7 @@ class Server:
                     elif data[:1] == b'3':
                         cipher = AESCipher(str(self.shared_key))
                         data_decrypt = cipher.decrypt(data[1:]).decode()
-                        #if self.todo:
+                        # if self.todo:
                         print(self.todo)
                         cipher_text = cipher.encrypt(str('3 ' + self.todo))
                         client_socket.send(cipher_text)
@@ -82,10 +88,9 @@ class Server:
                             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
                         else:
                             self.total_data += data[1:]
-            except ValueError as e:
-                pass
-
-        # client_socket.close()
+            except socket.timeout:
+                print(CLOSE_CON_MSG)
+                client_socket.close()
 
     def run(self):
         self.server_socket = socket.socket()
@@ -94,11 +99,12 @@ class Server:
         while True:
             try:
                 (client_socket, address) = self.server_socket.accept()
+                self.connections.append(client_socket)
                 t = threading.Thread(target=self.listen, args=(self.server_socket, client_socket))
                 t.start()
-            except:
-                pass
-            if not t.is_alive():
-                print(CLOSE_CON_MSG)
+            except Exception as e:
                 client_socket.close()
-
+                break
+            # if not t.is_alive():
+            # print(CLOSE_CON_MSG)
+            # client_socket.close()

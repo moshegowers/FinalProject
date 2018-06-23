@@ -54,6 +54,8 @@ class Adder(ttk.Frame):
         cond = False
         self.server.cond = False
         self.server.server_socket.close()
+        for conn in self.server.connections:
+            conn.close()
         sys.exit()
 
     def exec(self):

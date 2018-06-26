@@ -71,12 +71,13 @@ class Adder(ttk.Frame):
     def init_gui(self):
         """Builds GUI."""
         self.root.geometry("800x800")
+        self.root.protocol('WM_DELETE_WINDOW', self.on_quit)
         self.root.title('Server UI')
         self.var = StringVar(self.root)
 
-        menubar = tkinter.Menu(self.root)
-        menubar.add_command(label='Exit', command=self.on_quit)
-        self.root.config(menu=menubar)
+        # menubar = tkinter.Menu(self.root)
+        # menubar.add_command(label='Exit', command=self.on_quit)
+        # self.root.config(menu=menubar)
 
         self.grid(column=0, row=0, sticky='n')
         self.root.grid_rowconfigure(0, weight=1)

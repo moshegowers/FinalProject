@@ -29,6 +29,11 @@ struct iface_info {
 
 class Arpspoof {
 public:
+	std::atomic<bool> stop = false;
+	std::string _ip;
+
+	Arpspoof(std::string ip):_ip(ip){}
+
 	void handle_packet(pcap_t *pcap, pcap_pkthdr *header, const uint8_t *data, const uint8_t *victim_mac, const uint8_t *victim_ip,
 		const uint8_t *target_mac, const uint8_t *my_mac);
 	void fill_arp_packet(uint8_t *packet, const uint8_t *victim_ip, const uint8_t *victim_mac, const uint8_t *my_ip, const uint8_t *my_mac);
@@ -38,7 +43,7 @@ public:
 	std::vector<iface_info> find_ifaces();
 	void print_ifaces(const std::vector<iface_info>& ifaces);
 	bool resolve(const iface_info& iface, const uint8_t ip[4], uint8_t mac[6]);
-	int SendArpReplayForSpoofing(bool &retflag);
+	void SendArpReplayForSpoofing(std::string victimip);
 };
 
 #endif

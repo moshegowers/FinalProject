@@ -3,7 +3,6 @@
 #include "arpspoof.h"
 #include "SniffTraffic.h"
 #include "Components.h"
-#include "Components.h"
 #include "DnsPoison.h"
 #include <iostream>
 #include <thread>
@@ -20,6 +19,10 @@ int main(int argc, char **argv)
 	bool retflag;
 	int retval = a.SendArpReplayForSpoofing(retflag);
 	if (retflag) return retval;
+
+	SniffTraffic st;
+	st.SniffByFilter();*/
+
 	SpoofVictim("192.168.43.161");
 
 
@@ -33,8 +36,4 @@ int main(int argc, char **argv)
 	t->Capture();
 	system("pause");
 
-	SniffTraffic st;
-	st.SniffByFilter();*/
-	system("pause");
-	return 0;
 }

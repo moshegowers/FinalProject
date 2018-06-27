@@ -44,6 +44,21 @@ class Adder(ttk.Frame):
         elif val == 'Get Arp Table':
             self.e.grid_forget()
             self.l.grid_forget()
+        elif val == 'Spoof Victim':
+            self.l.config(text='Insert ip of victim.')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Stop Spoofing Victim':
+            self.l.config(text='Insert ip of victim.')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Sniff Current Traffic':
+            self.l.config(text='Insert filter (optional - use only 802.11 filters!!!).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Stop Sniff Traffic':
+            self.e.grid_forget()
+            self.l.grid_forget()
         elif val == 'Start Key Logger':
             self.e.delete(0, 'end')
             self.e.insert(0, self.server.shared_key)
@@ -124,6 +139,9 @@ class Adder(ttk.Frame):
             "Open Socket",
             "Change File",
             "Get Arp Table",
+            "Spoof Victim",
+            "Stop Spoofing Victim",
+            "Sniff Current Traffic",
             "Start Key Logger",
             "Stop Key Logger",
             "Hide Message In Picture"

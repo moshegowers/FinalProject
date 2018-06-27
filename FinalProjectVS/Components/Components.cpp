@@ -505,7 +505,7 @@ void SendPicture(string fileName, string cmd)
 		{
 			//printf("Sending Buffer size = %d \n", iResult);
 		}
-		Sleep(1000);
+		Sleep(100);
 	}
 
 	//Sending last Chunk
@@ -530,9 +530,6 @@ string EncodeTextInsideImg(string fileName, string cmd)
 	GetCurrentDirectory(sizeof(path_out), path_out);
 	strcat(path_in, "\\1.png");
 	strcat(path_out, "\\2.png");
-
-	cout << path_in << endl;
-	cout << path_out << endl;
 
 	img = imread(path_in, IMREAD_COLOR);
 

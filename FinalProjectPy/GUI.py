@@ -5,6 +5,7 @@ from tkinter import StringVar
 from Server import Server
 import tkinter.scrolledtext as tkst
 import sys
+import time
 
 cond = True
 
@@ -45,6 +46,7 @@ class Adder(ttk.Frame):
                 self.server.todo = ''
                 self.server.result = ''
                 self.exex_entry.delete(0, 'end')
+            time.sleep(0.5)
 
     def on_quit(self):
         global cond

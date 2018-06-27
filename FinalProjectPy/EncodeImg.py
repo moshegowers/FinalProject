@@ -20,6 +20,8 @@ def restor_message(file_name):
                 bits = str(img[height][width][0] & 0x01) + bits
                 i += 1
                 if i != 0 and i % 8 == 0:
+                    if int(bits, 2) == 0:
+                        return message
                     message += chr(int(bits, 2))
                     bits = ''
 

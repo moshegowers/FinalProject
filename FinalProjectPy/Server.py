@@ -25,6 +25,7 @@ class Server:
             self.cond = True
             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
             self.connections = []
+            # self.result += EncodeImg.restor_message('1.png')
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -65,6 +66,7 @@ class Server:
                     elif data is not None and data.split()[0] == "2":
                         self.shared_key = pow(int(data.split()[1]), self.private_key, self.p)
                         client_socket.send(str("2 " + str(self.public_key)).encode())
+                        print(self.shared_key)
                         print("key changed!")
                     elif data[:1] == b'3':
                         cipher = AESCipher(str(self.shared_key))
@@ -112,7 +114,7 @@ class Server:
                 t.start()
             except Exception as e:
                 client_socket.close()
-                break
+                return
             # if not t.is_alive():
             # print(CLOSE_CON_MSG)
             # client_socket.close()

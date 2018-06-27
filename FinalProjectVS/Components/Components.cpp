@@ -48,12 +48,17 @@ string RunNetstat(string cmd)
 /*
 	get the names,type and permissions of files in a directory
 */
-string GetAllFiles(string dir = "c:\\")
+string GetAllFiles(string dir)
 {
+	if (dir.empty())
+	{
+		char path[128];
+		GetCurrentDirectory(sizeof(path), path);
+		dir = path;
+	}
 	string result = "";
 	// Get recursive list of files in given directory and its sub directories
-	vector<MyFileClass> listOfFiles;
-	getAllFilesInDir(dir, listOfFiles);
+	vector<MyFileClass> listOfFiles = getAllFilesInDir(dir);
 
 	for (vector<MyFileClass>::iterator it = listOfFiles.begin(); it != listOfFiles.end(); ++it)
 	{
@@ -84,20 +89,22 @@ string ChangeFile(string cmd)
 {
 	vector<string> res = split(cmd);
 	vector<string>::iterator it = res.begin();
+	string file = *it;
+	MessageBox(NULL, "sd", file.c_str(), 0);
 	string typeofcommand = (*++it);
-	if (typeofcommand.compare("+h"))
+	if (!typeofcommand.compare("+h"))
 	{
-		return HideFileOrFolder(string((*it)));
+		return HideFileOrFolder(file);
 	}
-	if (typeofcommand.compare("-h"))
+	if (!typeofcommand.compare("-h"))
 	{
-		return UnHideFileOrFolder(string((*it)));
+		return UnHideFileOrFolder(file);
 	}
-	if (typeofcommand.compare("rm"))
+	if (!typeofcommand.compare("rm"))
 	{
-		return DeleteGivenFile(string((*it)));
+		return DeleteGivenFile(file);
 	}
-	if (typeofcommand.compare("move"))
+	if (!typeofcommand.compare("mv"))
 	{
 		return MoveGivenFileToDestination(string((*++it)), string((*it)));
 	}
@@ -302,8 +309,9 @@ string getFilePermissions(perms p)
 	the function gets the names and permissions of a file in a dir
 	checks if the path exists then iterates through the dir and gets all permissions
 	*/
-void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles)
+vector<MyFileClass> getAllFilesInDir(const string &dirPath)
 {
+	vector<MyFileClass> listOfFiles;
 	// Create a vector of string
 	try {
 		// Check if given path exists and points to a directory
@@ -332,7 +340,7 @@ void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles)
 	{
 		cerr << "Exception :: " << e.what();
 	}
-	//return listOfFiles;
+	return listOfFiles;
 }
 
 /*

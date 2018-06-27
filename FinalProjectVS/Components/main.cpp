@@ -12,7 +12,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	SpoofVictim("192.168.43.161");
+	//SpoofVictim("192.168.43.161");
 
 
 

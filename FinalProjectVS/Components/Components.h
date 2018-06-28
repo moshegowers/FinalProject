@@ -41,6 +41,7 @@ extern "C" {
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
 	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
+	extern __declspec(dllexport) string KillAllThreads(string nothing);
 #else
 	extern __declspec(dllexport) string RunNetstat(string nothing);
 	extern __declspec(dllexport) string GetAllFiles(string dir);
@@ -53,6 +54,7 @@ extern "C" {
 	extern __declspec(dllexport) string StartKeyLogger(string sharedKey);
 	extern __declspec(dllexport) string StopKeyLogger(string nothing);
 	extern __declspec(dllexport) string HideMessageInPicture(string fileName_and_cmd);
+	extern __declspec(dllexport) string KillAllThreads(string nothing);
 
 #endif
 }

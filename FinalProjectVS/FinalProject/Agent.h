@@ -42,7 +42,7 @@ private:
 public:
 	Agent();
 	string sharedKey;
-	//mbedtls_aes_context aes;
+
 	void CreateSocket();
 	void SendMessageToServer(const char *message, size_t length, char *code, bool encrypt = false);
 	void ReciveMessage();
@@ -50,7 +50,6 @@ public:
 	void Cleanup();
 	string runDynamicFunction(string library, string function, string cmd = "");
 	string exec(string);
-	//DWORD __stdcall ThreadFunc(LPVOID data);
 };
 
 #endif

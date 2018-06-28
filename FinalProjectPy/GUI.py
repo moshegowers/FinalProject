@@ -71,6 +71,9 @@ class Adder(ttk.Frame):
             self.l.config(text='Insert url of img and command to run (use by white space for split them).')
             self.l.grid(column=0, row=6, columnspan=6, pady=5)
             self.e.grid(column=1, row=7, pady=5)
+        elif val == 'Kill All Threads':
+            self.e.grid_forget()
+            self.l.grid_forget()
 
         ttk.Button(self, text='Exec', command=self.exec_func).grid(column=0, row=8, columnspan=4, pady=5)
 
@@ -84,6 +87,7 @@ class Adder(ttk.Frame):
                 self.server.todo = ''
                 self.server.result = ''
                 self.exex_entry.delete(0, 'end')
+                self.e.delete(0, 'end')
             time.sleep(0.5)
 
     def on_quit(self):
@@ -144,7 +148,8 @@ class Adder(ttk.Frame):
             "Sniff Current Traffic",
             "Start Key Logger",
             "Stop Key Logger",
-            "Hide Message In Picture"
+            "Hide Message In Picture",
+            "Kill All Threads"
         ]
         ttk.OptionMenu(self, self.var, *functions).grid(
             column=0, row=5, columnspan=4, pady=5)

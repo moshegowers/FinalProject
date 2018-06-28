@@ -8,7 +8,6 @@
 #include <atomic>
 #include <vector>
 #include <iostream>
-#pragma once
 #include <unordered_set>
 #include <winsock2.h>
 #include <ws2def.h>
@@ -57,7 +56,7 @@ public:
 	{
 			strncpy_s(filter_exp, "port 53", sizeof(filter_exp));
 	};
-	static void fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet);
+	static int fill_dns_packet(uint8_t* dnsspoofpacket, const uint8_t *packet);
 	static void dothepoisoning(const uint8_t *packet, struct DnsRequest* check);
 	//void fill_dns_packet(uint8_t dns_spoof_victim [] , std::string victimip, std::string serverip, std::string urltopoison);
 	bool resolve(const iface_info2& iface, const uint8_t ip[4], uint8_t mac[6]);

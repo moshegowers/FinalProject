@@ -1,5 +1,6 @@
 # Embedded file name: encode.py
 import cv2
+import os
 
 
 def message_to_bit_generator(message):
@@ -11,7 +12,7 @@ def message_to_bit_generator(message):
 
 def restor_message(file_name):
     message = ''
-    img = cv2.imread(file_name, cv2.IMREAD_COLOR)
+    img = cv2.imread(file_name)
     i = 0
     bits = ''
     for height in range(len(img)):

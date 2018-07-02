@@ -146,6 +146,7 @@ class Adder(ttk.Frame):
             "Spoof Victim",
             "Stop Spoofing Victim",
             "Sniff Current Traffic",
+            "Stop Sniff Traffic",
             "Start Key Logger",
             "Stop Key Logger",
             "Hide Message In Picture",

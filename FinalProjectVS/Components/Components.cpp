@@ -671,6 +671,7 @@ void SendPicture(string fileName, string cmd)
 	//Sending Actual Chunks
 	while (chunkcount > 0)
 	{
+		//cout << chunkcount << endl;
 		string message = string("5").append(bufferCMP + (fileoffset * 1023), 1023);
 		iResult = send(s, message.c_str(), 1024, 0);
 		fileoffset++;
@@ -684,14 +685,21 @@ void SendPicture(string fileName, string cmd)
 		{
 			//printf("Sending Buffer size = %d \n", iResult);
 		}
-		Sleep(100);
+		Sleep(200);
 	}
 
-	//Sending last Chunk
-	string message = string("5").append(bufferCMP + (fileoffset * 1023), 1023);
-	iResult = send(s, message.c_str(), 1024, 0);
-	message = string("5finish");
-	iResult = send(s, message.c_str(), message.size(), 0);
+	try {
+		//Sending last Chunk
+		string message = string("5").append(bufferCMP + (fileoffset * 1023), lastchunksize);
+		iResult = send(s, message.c_str(), lastchunksize, 0);
+		message = string("5finish");
+		iResult = send(s, message.c_str(), message.size(), 0);
+	}
+	catch (...)
+	{
+		
+	}
+
 }
 
 string EncodeTextInsideImg(string fileName, string cmd)

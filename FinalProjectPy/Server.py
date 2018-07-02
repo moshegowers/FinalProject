@@ -84,7 +84,7 @@ class Server:
                         client_socket.send(cipher_text)
                     elif data[:1] == b'5' or data[:1] == '5':
                         if data == '5finish':
-                            new_file = open("1.png", "wb")
+                            new_file = open("C:\\Users\\Moshe\\Desktop\\CyberPlan\\FinalProject\\FinalProject\\FinalProjectPy\\1.png1.png", "wb")
                             # write to file
                             new_file.write(self.total_data)
                             new_file.close()

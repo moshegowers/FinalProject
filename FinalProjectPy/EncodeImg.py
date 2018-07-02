@@ -1,4 +1,3 @@
-# Embedded file name: encode.py
 import cv2
 import os
 
@@ -32,7 +31,6 @@ def restor_message(file_name):
 
 
 def hide_message(input, file_name, output_img):
-    # print(''.join(format(ord(x), 'b') for x in input))
     message = message_to_bit_generator(input)
     img = cv2.imread(file_name, cv2.IMREAD_COLOR)
     arr = []

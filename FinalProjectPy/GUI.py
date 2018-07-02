@@ -6,13 +6,15 @@ from Server import Server
 import tkinter.scrolledtext as tkst
 import sys
 import time
-
+#the awesome gui to control
+#
+#
 cond = True
 
 
 class Adder(ttk.Frame):
     """The adders gui and functions."""
-
+#ctor
     def __init__(self, parent, *args, **kwargs):
         ttk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
@@ -22,7 +24,7 @@ class Adder(ttk.Frame):
         self.l = ttk.Label(self, text='')
         threading.Thread(target=self.server.run).start()
         threading.Thread(target=self.check_result).start()
-
+# if a function was ran
     def changed(self, *args):
         val = self.var.get()
 
@@ -89,7 +91,7 @@ class Adder(ttk.Frame):
                 self.exex_entry.delete(0, 'end')
                 self.e.delete(0, 'end')
             time.sleep(0.5)
-
+#exit program
     def on_quit(self):
         global cond
         """Exits program."""
@@ -101,19 +103,19 @@ class Adder(ttk.Frame):
         for conn in self.server.connections:
             conn.close()
         sys.exit()
-
+#send the command ovrer
     def exec(self):
         self.server.set_todo('cmd ' + self.exex_entry.get())
         self.answer_frame.configure(state='normal')
         self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...\n")
         self.answer_frame.configure(state='disabled')
-
+#send a function to be called over
     def exec_func(self):
         self.server.set_todo('func Components.dll ' + self.var.get().replace(" ", "") + " " + self.e.get())
         self.answer_frame.configure(state='normal')
         self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...\n")
         self.answer_frame.configure(state='disabled')
-
+#initialize thegui
     def init_gui(self):
         """Builds GUI."""
         self.root.geometry("800x800")
@@ -170,7 +172,7 @@ class Adder(ttk.Frame):
         # answer_label = ttk.Label(self.answer_frame, text='')
         # answer_label.grid(column=0, row=6, columnspan=4)
 
-
+# creste the gui window
 def create_window():
     root = tkinter.Tk()
     Adder(root)

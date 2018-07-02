@@ -1,7 +1,7 @@
 import cv2
 import os
 
-
+# the file to encode messages
 def message_to_bit_generator(message):
     for character in message:
         order = ord(character)

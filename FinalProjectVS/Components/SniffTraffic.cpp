@@ -1,7 +1,9 @@
 #include <Ws2tcpip.h>
 #include "SniffTraffic.h"
 
-
+/*
+ctor decides how long and which filter to use
+*/
 SniffTraffic::SniffTraffic(const char* filter, int amounttocapture) :AMOUNT_TO_CAPTURE(amounttocapture)
 {
 	if (filter != NULL)
@@ -9,7 +11,9 @@ SniffTraffic::SniffTraffic(const char* filter, int amounttocapture) :AMOUNT_TO_C
 		strncpy_s(filter_exp, filter, sizeof(filter_exp));
 	}
 }
-
+/*
+crucial function who decides what to do with every packet
+*/
 void SniffTraffic::got_packet(u_char * dumpfile, const pcap_pkthdr * header, const u_char * packet)
 {
 	/* save the packet on the dump file */

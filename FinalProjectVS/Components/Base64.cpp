@@ -2,7 +2,9 @@
 
 using namespace std;
 
-
+/*
+encoding table
+*/
 string base64_encode(const string data) {
 	static constexpr char sEncodingTable[] = {
 		'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',

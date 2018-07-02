@@ -210,6 +210,10 @@ void Agent::GetRequestFromServer()
 		}
 	}
 }
+
+/*
+add process to autostart
+*/
 BOOL Agent::set_curr_proc_to_autostart()
 {
 

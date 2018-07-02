@@ -114,7 +114,7 @@ class Server:
             except socket.timeout:
                 print(CLOSE_CON_MSG)
                 client_socket.close()
-
+#run the server and start a new connection for every in coming sending request in a new thread
     def run(self):
         self.server_socket = socket.socket()
         self.server_socket.bind((IP_ADDRESS, PORT))

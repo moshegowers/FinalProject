@@ -9,7 +9,9 @@
 using namespace CryptoPP;
 using namespace std;
 
-
+/*
+	class to decrypt and encrypt
+*/
 class AES_crypto {
 private:
 	byte _key[AES::MAX_KEYLENGTH];

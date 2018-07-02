@@ -1,6 +1,8 @@
 #include "Socket.h"
 using namespace std;
-
+/*
+intitializes all the sockdetails
+*/
 Socket::Socket(string ip, string port):
 	_ipAddress(ip), _port(port)
 {

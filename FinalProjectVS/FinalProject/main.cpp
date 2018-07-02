@@ -1,7 +1,9 @@
 #include "Agent.h"
 
 using namespace std;
-
+/*
+func executes shell commands
+*/
 string exec(string cmd)
 {
 	char buffer[128];

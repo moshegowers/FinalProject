@@ -5,6 +5,7 @@ import threading
 import msvcrt
 import time
 import EncodeImg
+import os
 
 IP_ADDRESS = '127.0.0.1'
 PORT = 4921
@@ -24,9 +25,9 @@ class Server:
             self.result = ''
             self.cond = True
             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
-            self.pcap_data = b''
+            self.pcap_data = b'\xD4\xC3\xB2\xA1\x02\x00\x04\x00'
             self.connections = []
-            # self.result += EncodeImg.restor_message('1.png')
+            # self.result += EncodeImg.restor_message("{}\\1.png".format(os.getcwd()))
         except ValueError as e:
             print("Cannot initialized")
             return
@@ -84,12 +85,14 @@ class Server:
                         client_socket.send(cipher_text)
                     elif data[:1] == b'5' or data[:1] == '5':
                         if data == '5finish':
-                            new_file = open("C:\\Users\\Moshe\\Desktop\\CyberPlan\\FinalProject\\FinalProject\\FinalProjectPy\\1.png1.png", "wb")
+                            file_path = "{}\\1.png".format(os.getcwd())
+                            self.total_data += b'\x82'
+                            new_file = open(file_path, "wb")
                             # write to file
                             new_file.write(self.total_data)
                             new_file.close()
                             self.total_data = b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A'
-                            self.result += EncodeImg.restor_message('1.png').strip()
+                            self.result += EncodeImg.restor_message(file_path).strip()
                         else:
                             self.total_data += data[1:]
                     elif data is not None and (data[:1] == b"6" or data[:1] == "6"):
@@ -101,8 +104,8 @@ class Server:
                             new_file = open("1.pcap", "wb")
                             # write to file
                             new_file.write(self.total_data)
-                            new_file.close()
-                            self.pcap_data = b''
+                            # new_file.close()
+                            self.pcap_data = b'\xD4\xC3\xB2\xA1\x02\x00\x04\x00'
                             self.result += "pcap file was dumped"
                         else:
                             self.total_data += data[1:]

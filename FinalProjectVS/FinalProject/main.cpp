@@ -55,7 +55,7 @@ void NTAPI __stdcall TLSCallbacks(PVOID DllHandle, DWORD dwReason, PVOID Reserve
 	//MessageBox(nullptr, "TLS Callback before main :)", "dZkyXj - Debugger Owned!", 0);
 	if (IsDebuggerPresent())
 		ExitProcess(0);
-	if (!exec("\powershell.exe -Command (gwmi Win32_BaseBoard).Manufacturer -match \"Corporation\"").compare("True"))
+	if (!exec("powershell.exe -Command (gwmi Win32_BaseBoard).Manufacturer -match \\\"Corporation\\\"").compare("True\n"))
 		ExitProcess(0);
 }
 

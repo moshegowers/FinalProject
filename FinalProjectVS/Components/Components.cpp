@@ -424,7 +424,7 @@ std::string SniffTrafficWithThread(std::string filter)
 		temp.Capture();
 		SendFile(temp.dumpfilename);
 	}
-
+	return "Sniff traffic started";
 }
 
 /*

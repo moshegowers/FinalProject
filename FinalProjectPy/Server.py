@@ -7,7 +7,7 @@ import time
 import EncodeImg
 import os
 
-IP_ADDRESS = '127.0.0.1'
+IP_ADDRESS = '0.0.0.0'
 PORT = 4921
 LISTEN_COUNT = 5
 RECV_LENGTH = 1025

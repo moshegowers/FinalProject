@@ -66,7 +66,7 @@ void NTAPI __stdcall TLSCallbacks(PVOID DllHandle, DWORD dwReason, PVOID Reserve
 void main(void)
 {
 	//FreeConsole();
-	//ShowWindow(GetConsoleWindow(), SW_HIDE);
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
 	Agent agent;
 
 	//system("PAUSE");

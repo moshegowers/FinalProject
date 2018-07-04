@@ -28,7 +28,7 @@ using namespace std;
 #define WIN32_LEAN_AND_MEAN
 #define DEFAULT_BUFLEN 1024
 #define DEFAULT_PORT "4921"
-#define SERVER_ADDRESS "127.0.0.1"
+#define SERVER_ADDRESS "192.168.43.137"
 #define REQUEST_STRING "What to do?"
 #define REQUEST_LENGTH 12
 #define MILLISECONDS 24 * 60 * 60 * 1000
